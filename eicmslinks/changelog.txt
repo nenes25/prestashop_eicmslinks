@@ -1,0 +1,10 @@
+/**
+ * Module Cms Link
+ * Mise en place de liens dynamiques vers les pages cms
+ * © h-hennes 2013-2015 
+ * http://www.h-hennes.fr/blog/
+ */
+ 
+ 2014-01-18 V 0.1.0 : Mise à disposition publique de la version initiale du module 
+ 2015-03-20 V 0.2.0 : - Compatibilité Prestashop 1.6
+                      - Optimisation du code ( gestion des traductions )

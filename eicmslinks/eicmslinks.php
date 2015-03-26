@@ -59,7 +59,15 @@ class EiCmsLinks extends Module
 		if (!parent::uninstall())
 			return false;
 
-		//@todo : Supprimer les fichiers lors de la désinstallation
+		//Suppression des fichiers lors de la désinstallation
+		if ( !$this->deleteDir(dirname(__FILE__).'/../../js/tiny_mce/plugins/eicmslinks/') )
+				return false;
+
+		//Si la suppression du template admin si la desinstall prestashop n'a pas fonctionné on le supprime 
+		if (is_file(dirname(__FILE__).'/../../override/controllers/admin/templates/cms/helpers/form/form.tpl'))
+			return unlink(dirname(__FILE__).'/../../override/controllers/admin/templates/cms/helpers/form/form.tpl');
+
+		return true;
 
 		return true;
 	}
@@ -99,6 +107,21 @@ class EiCmsLinks extends Module
 		}
 	}
 
+	/**
+	 * Supression récursive d'un dossier
+	 * @param type $dir
+	 * @return boolean
+	 */
+	public function deleteDir($dir)
+	{
+		$files = array_diff(scandir($dir), array('.', '..'));
+		foreach ($files as $file)
+		{
+			(is_dir("$dir/$file")) ? $this->deleteDir("$dir/$file") : unlink("$dir/$file");
+		}
+		return rmdir($dir);
+	}
+	
 	/**
 	 * Mise à jour de l'objet cms pour remplacer les variables d'url des lien
 	 * @param Cms $cms : Object cms || null

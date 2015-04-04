@@ -36,7 +36,7 @@
 		{block name="autoload_tinyMCE"}
 			tinySetup({
 				plugins : "colorpicker link image paste pagebreak table contextmenu filemanager table code media autoresize textcolor eicmslinks",
-                                toolbar2: "eicmslinks",
+                toolbar2: "eicmslinks",
 			});
 		{/block}
 	});

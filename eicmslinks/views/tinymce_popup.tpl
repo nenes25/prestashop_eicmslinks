@@ -3,6 +3,9 @@
     <head>
         <meta charset="utf-8">
             <title>{l s='add link to prestashop cms page' mod='eicmslinks'}</title>
+			{if $ps_version == 15}
+			<script type="text/javascript" src="../../tiny_mce_popup.js"></script>
+			{/if}
     </head>
     <body>
         <p>{l s='click on the element to add it to the page content' mod='eicmslinks'}</p>
@@ -14,8 +17,7 @@
                     <input type="button" id="cancel" name="cancel" value="{l s='Cancel' mod='eicmslinks'}" class="mce-close" onclick="closePopup();" />
                 </div>
             </center>
-        </div>
-        {*Reprendre l'ancien code pour avoir encore la disponibilité sur prestashop 1.5 *}        
+        </div>       
         <script>
             /**
              * Ajout du lien d'ans l'éditeur

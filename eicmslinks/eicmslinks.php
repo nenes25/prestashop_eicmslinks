@@ -30,7 +30,7 @@ class EiCmsLinks extends Module
 		$this->name = 'eicmslinks';
 		$this->tab = 'hhennes';
 		$this->author = 'hhennes';
-		$this->version = '0.2.0';
+		$this->version = '0.3.0';
 		$this->need_instance = 0;
 
 		parent::__construct();
@@ -50,7 +50,12 @@ class EiCmsLinks extends Module
 
 		//Copie de l'override du formulaire cms de l'admin (Normalement devrait fonctionner via prestashop)
 		$this->copyDir(dirname(__FILE__).'/override/controllers/admin/templates/', dirname(__FILE__).'/../../override/controllers/admin/templates/');
-
+		
+		//Spécifique 1.5 ( on renomme le fichier de surcharge avec le bon nom car ils ne sont pas compatibles entre les versions )
+		if ( _PS_VERSION_ < '1.6' ) {
+			rename(dirname(__FILE__).'/../../override/controllers/admin/templates/cms/helpers/form/form.tpl',dirname(__FILE__).'/../../override/controllers/admin/templates/cms/helpers/form/form16.tpl');
+			rename(dirname(__FILE__).'/../../override/controllers/admin/templates/cms/helpers/form/form15.tpl',dirname(__FILE__).'/../../override/controllers/admin/templates/cms/helpers/form/form.tpl');
+		}
 		return true;
 	}
 

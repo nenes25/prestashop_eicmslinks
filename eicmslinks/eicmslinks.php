@@ -30,8 +30,9 @@ class EiCmsLinks extends Module
 		$this->name = 'eicmslinks';
 		$this->tab = 'hhennes';
 		$this->author = 'hhennes';
-		$this->version = '0.2.0';
+		$this->version = '0.3.0';
 		$this->need_instance = 0;
+		$this->bootstrap = true;
 
 		parent::__construct();
 
@@ -50,7 +51,12 @@ class EiCmsLinks extends Module
 
 		//Copie de l'override du formulaire cms de l'admin (Normalement devrait fonctionner via prestashop)
 		$this->copyDir(dirname(__FILE__).'/override/controllers/admin/templates/', dirname(__FILE__).'/../../override/controllers/admin/templates/');
-
+		
+		//Spécifique 1.5 ( on renomme le fichier de surcharge avec le bon nom car ils ne sont pas compatibles entre les versions )
+		if ( _PS_VERSION_ < '1.6' ) {
+			rename(dirname(__FILE__).'/../../override/controllers/admin/templates/cms/helpers/form/form.tpl',dirname(__FILE__).'/../../override/controllers/admin/templates/cms/helpers/form/form16.tpl');
+			rename(dirname(__FILE__).'/../../override/controllers/admin/templates/cms/helpers/form/form15.tpl',dirname(__FILE__).'/../../override/controllers/admin/templates/cms/helpers/form/form.tpl');
+		}
 		return true;
 	}
 
@@ -72,6 +78,31 @@ class EiCmsLinks extends Module
 		return true;
 	}
 
+	/**
+	 * Test du helper des catégories
+	*/
+	public function getContent(){
+		
+		/*$categoryTree = new HelperTreeCategories('categories-tree', $this->l('Filter by category'));
+		return $categoryTree->setAttribute()
+			   ->setInputName('id-category-for-insert')
+			   ->render();*/
+			
+			//Construction du token
+			$token =Tools::getAdminToken('Wysiwyg'.(int)Tab::getIdFromClassName('Wysiwyg').(int)$this->context->employee->id);
+				
+            return '<script>$(document).ready(function(){
+                    $.ajax({
+                    url : "index.php?controller=Wysiwyg&module=eicmslinks&action=CategoriesList&ajax=1&token='.$token.'",
+                    method : "post",
+					success : function(msg){
+						$("#test").html("").html(msg);
+					}
+                    });
+                    });</script>
+					<div id="test"></div>';
+	}
+	
 	/**
 	 * Copie du contenu d'un dossier vers un autre emplacement
 	 * @param string $dir2copy : Chemin du dossier à copier
@@ -191,8 +222,15 @@ class EiCmsLinks extends Module
 	public function displayTinyMcePopup()
 	{
                 //Liste des pages cms
-		$this->context->smarty->assign('categories_html', $this->getCmsLinks());
-                
+				//$this->context->smarty->assign('cms_categories_html', $this->getCmsLinks());
+				
+                //Fichier js de gestion de la popin (@ToDo : récupérer la bonne version de jquery du prestashop )
+				$token = Tools::getAdminToken('Wysiwyg'.(int)Tab::getIdFromClassName('Wysiwyg').(int)'1');
+				
+				$this->context->smarty->assign('js_token',$token);
+				$this->context->smarty->assign('jquery-file','/../../../jquery/jquery-1.11.0.min.js');
+				$this->context->smarty->assign('js_file',dirname(__FILE__).'views/tiny_mce_popup.js');
+				
                 //Version de prestashop concernée
                 if ( _PS_VERSION_ > '1.6' )
                     $ps_version = '16';

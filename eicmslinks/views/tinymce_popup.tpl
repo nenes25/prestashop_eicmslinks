@@ -28,7 +28,7 @@
 	<ul class="menu-link">
 		<li><a class="show-block-link" rel="cms_content" href="#">{l s='cms content' mod='eicmslinks'}</a></li>
 		<li><a class="show-block-link" rel="category_content" href="#">{l s='category content' mod='eicmslinks'}</a></li>
-		<!--<li><a class="show-block-link" rel="product_content" href="#">{l s='product content' mod='eicmslinks'}</a></li>-->
+		<li><a class="show-block-link" rel="product_content" href="#">{l s='product content' mod='eicmslinks'}</a></li>
 	</ul>
 	<br style="clear:both;" />
         <p>{l s='click on the element to add it to the page content' mod='eicmslinks'}</p>

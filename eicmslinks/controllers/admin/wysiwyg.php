@@ -35,8 +35,8 @@ class WysiwygController extends ModuleAdminController {
      * Listing ajax des catégories
      */
     public function displayAjaxCategoriesList() {
-        
-        //Insertion des styles admin nécessaire à l'affichage
+	
+		//Insertion des styles admin nécessaire à l'affichage des actions ajax
         foreach ( $this->css_files as $css_key => $css_type ) {
             echo '<link rel="stylesheet" type="text/css" href="'.$css_key.'" type="'.$css_type.'"/>';
         }
@@ -50,8 +50,75 @@ class WysiwygController extends ModuleAdminController {
     /**
      * Listing ajax des produits
      */
-    public function displayAjaxProductsLists() {
+    public function displayAjaxProductsList() {
+	
+		$filterCond = $this->_getProductFilterConditions();
+	
+		//Récupération des produits
+		$products = Db::getInstance()->ExecuteS("SELECT p.id_product,p.reference, pl.name 
+												FROM ps_product p
+												LEFT JOIN ps_product_lang pl ON ( p.id_product = pl.id_product AND pl.id_lang = ".$this->context->language->id.")
+												" .$filterCond);
+		$fields_list = array(
+						'id_product' => array(
+							'title' => $this->l('id'),
+							'type' => 'text',
+							'width' => 50
+						),
+						'reference' => array ( 
+							'title' => $this->l('ref'),
+							'type' => 'text',
+							'width' => 100
+						),
+						'name' => array ( 
+							'title' => $this->l('name'),
+							'type' => 'text',
+							'width' => 150
+						),
+					);
+	
+		$productList = new HelperList();
+		$productList->simple_header = false;
+		$productList->identifier = 'id_product';
+		$productList->title = 'Product List';
+		$productList->table = 'product';
+		$productList->shopLinkType = '';
+		$productList->currentIndex = $this->context->link->getAdminLink('Wysiwyg&module=eicmslinks&action=ProductsList&ajax=1');
+		$productList->token = $this->token;
+		
+		
+		echo $productList->generateList($products,$fields_list);
+		
         
     }
 
+	/**
+	 * Construction de la requête de filtrage des produits
+	 */
+	protected function _getProductFilterConditions() {
+	
+		$conditions = array();
+		$sql_conditions = '';
+		
+		if ( Tools::getValue('productFilter_id_product') ) {
+			$conditions[] = 'p.id_product = '.(int)Tools::getValue('productFilter_id_product');
+		}
+		if ( Tools::getValue('productFilter_reference') ) {
+			$conditions[] = "p.reference LIKE '".Tools::getValue('productFilter_reference')."%'";
+		}
+		if ( Tools::getValue('productFilter_name') ) {
+			$conditions[] = "pl.name LIKE '".Tools::getValue('productFilter_name')."%'";
+		}
+		
+		for ( $i = 0 ; $i < sizeof($conditions) ; $i++ ) {
+			if ( $i == 0 )
+			 $sql_conditions .= ' WHERE '.$conditions[$i];
+			else
+				$sql_conditions .= ' AND '.$conditions[$i];
+		}
+		
+		return $sql_conditions;
+		
+		
+	}
 }

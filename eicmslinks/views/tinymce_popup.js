@@ -21,6 +21,17 @@ $(document).ready(function() {
             $("#category_content").html("").html(msg);
         }
     });
+	
+	/**
+	 * Récupération ajax des produits
+	 */
+	$.ajax({
+        url: "../../../../admin-dev/index.php?controller=Wysiwyg&module=eicmslinks&action=ProductsList&ajax=1&token=" + js_token,
+        method: "post",
+        success: function(msg) {
+            $("#product_content").html("").html(msg);
+        }
+    });
 
     /**
      * Insertion d'une catégorie

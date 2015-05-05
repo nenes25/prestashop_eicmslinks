@@ -30,7 +30,7 @@ class EiCmsLinks extends Module {
         $this->name = 'eicmslinks';
         $this->tab = 'hhennes';
         $this->author = 'hhennes';
-        $this->version = '0.4.0';
+        $this->version = '0.5.0';
         $this->need_instance = 0;
         $this->bootstrap = true;
 
@@ -149,10 +149,20 @@ class EiCmsLinks extends Module {
         //Mise à jour des liens vers les pages categories
         preg_match_all('#{{category url=([0-9])}}#', $cms->content, $category_links);
 
-        if (isset($category_links[1]) && sizeof($cms_links[1])) {
+        if (isset($category_links[1]) && sizeof($category_links[1])) {
             foreach ($category_links[1] as $category_link) {
                 $category_link_url = $link_model->getCategoryLink($category_link);
-                $cms->content = preg_replace('#{{category url=' . $link . '}}#', $category_link_url, $cms->content);
+                $cms->content = preg_replace('#{{category url=' . $category_link. '}}#', $category_link_url, $cms->content);
+            }
+        }
+		
+		//Mise à jour des liens vers les pages produits
+        preg_match_all('#{{product url=([0-9])}}#', $cms->content, $product_links);
+
+        if (isset($product_links[1]) && sizeof($product_links[1])) {
+            foreach ($product_links[1] as $product_link) {
+                $product_link_url = $link_model->getProductLink($product_link);
+                $cms->content = preg_replace('#{{product url=' . $product_link . '}}#', $product_link_url, $cms->content);
             }
         }
 

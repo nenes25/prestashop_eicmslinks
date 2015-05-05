@@ -26,6 +26,9 @@
  */
 class WysiwygController extends ModuleAdminController {
 
+	/** Nom du helper de liste des produits */
+	protected $helper_list_name = 'add_product_link_form';
+
     public function __construct() {
 
         parent::__construct();
@@ -63,17 +66,19 @@ class WysiwygController extends ModuleAdminController {
 						'id_product' => array(
 							'title' => $this->l('id'),
 							'type' => 'text',
-							'width' => 50
+							'width' => 50,
+							'class' => 'product_id'
 						),
 						'reference' => array ( 
 							'title' => $this->l('ref'),
 							'type' => 'text',
-							'width' => 100
+							'width' => 100,
 						),
 						'name' => array ( 
 							'title' => $this->l('name'),
 							'type' => 'text',
-							'width' => 150
+							'width' => 150,
+							'class' => 'product_name'
 						),
 					);
 	
@@ -81,11 +86,11 @@ class WysiwygController extends ModuleAdminController {
 		$productList->simple_header = false;
 		$productList->identifier = 'id_product';
 		$productList->title = 'Product List';
-		$productList->table = 'product';
+		$productList->table = $this->helper_list_name;
 		$productList->shopLinkType = '';
-		$productList->currentIndex = $this->context->link->getAdminLink('Wysiwyg&module=eicmslinks&action=ProductsList&ajax=1');
+		$productList->currentIndex = str_replace('index.php','',$_SERVER['PHP_SELF']).$this->context->link->getAdminLink('Wysiwyg&module=eicmslinks&action=ProductsList&ajax=1');
 		$productList->token = $this->token;
-		
+		$productList->no_link= true;
 		
 		echo $productList->generateList($products,$fields_list);
 		
@@ -100,14 +105,14 @@ class WysiwygController extends ModuleAdminController {
 		$conditions = array();
 		$sql_conditions = '';
 		
-		if ( Tools::getValue('productFilter_id_product') ) {
-			$conditions[] = 'p.id_product = '.(int)Tools::getValue('productFilter_id_product');
+		if ( Tools::getValue($this->helper_list_name.'Filter_id_product') && Tools::getValue($this->helper_list_name.'Filter_id_product') != '' ) {
+			$conditions[] = 'p.id_product = '.(int)Tools::getValue($this->helper_list_name.'Filter_id_product');
 		}
-		if ( Tools::getValue('productFilter_reference') ) {
-			$conditions[] = "p.reference LIKE '".Tools::getValue('productFilter_reference')."%'";
+		if ( Tools::getValue($this->helper_list_name.'Filter_reference') && Tools::getValue($this->helper_list_name.'Filter_reference') != '') {
+			$conditions[] = "p.reference LIKE '".Tools::getValue($this->helper_list_name.'Filter_reference')."%'";
 		}
-		if ( Tools::getValue('productFilter_name') ) {
-			$conditions[] = "pl.name LIKE '".Tools::getValue('productFilter_name')."%'";
+		if ( Tools::getValue($this->helper_list_name.'Filter_name') && Tools::getValue($this->helper_list_name.'Filter_name') != '' ) {
+			$conditions[] = "pl.name LIKE '".Tools::getValue($this->helper_list_name.'Filter_name')."%'";
 		}
 		
 		for ( $i = 0 ; $i < sizeof($conditions) ; $i++ ) {
@@ -118,7 +123,6 @@ class WysiwygController extends ModuleAdminController {
 		}
 		
 		return $sql_conditions;
-		
-		
+			
 	}
 }

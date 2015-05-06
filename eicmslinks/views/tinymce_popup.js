@@ -15,13 +15,17 @@ $(document).ready(function() {
      * Récupération ajax des catégories
      */
     $.ajax({
-        url: "../../../../admin-dev/index.php?controller=Wysiwyg&module=eicmslinks&action=CategoriesList&ajax=1&token=" + js_token,
+        url: "../../../../admin-dev/"+ajax_page,
         method: "post",
+        data : {
+            action : 'CategoriesList',
+            token : js_token
+        },
         success: function(msg) {
             $("#category_content").html("").html(msg);
         }
     });
-	
+    	
 	/**
 	 * Récupération ajax des produits
 	 */
@@ -51,24 +55,37 @@ $(document).ready(function() {
 	 * Gestion de la recherche des produits
      * ( Effectuée en ajax )	 
 	 */
-	 $(document).on('click','#submitFilterButtonadd_product_link_form',function(){
+	 $('#product_content').on('click','#submitFilterButtonadd_product_link_form',function(){
 		
 		id = $('input[name="add_product_link_formFilter_id_product"]').val();
 		reference = $('input[name="add_product_link_formFilter_reference"]').val();
 		name = $('input[name="add_product_link_formFilter_name"]').val();
-
+                
 		_getProductsList(id,reference,name);
 		return false;
 	 });
-	 
-	 /**
-	  * Fonction de récupération de la liste des produits 
-	  */
+         
+         /**
+          * Réinitialisation de la recherche produit
+          */
+         $('#product_content').on('click','.btn-warning',function(){
+		_getProductsList();
+		return false;
+	 });
+                 	 
+         /**
+          * Fonction de récupération de la liste des produits 
+          * @param int || vide id
+          * @param string || vide reference
+          * @param string || vide name
+          */
 	 function _getProductsList(id,reference,name) {
 		 $.ajax({
-			url: "../../../../admin-dev/index.php?controller=Wysiwyg&module=eicmslinks&action=ProductsList&ajax=1&token=" + js_token,
+			url: "../../../../admin-dev/"+ajax_page,
 			method: "post",
 			data : {
+                                action : 'ProductsList',
+                                token : js_token,
 				add_product_link_formFilter_id_product : id,
 				add_product_link_formFilter_reference : reference,
 				add_product_link_formFilter_name : name

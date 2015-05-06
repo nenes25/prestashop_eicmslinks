@@ -8,6 +8,7 @@
         {/if}
         <script type="text/javascript">
                 var js_token = '{$js_token}';
+                var ajax_page = '{$ajax_page}'
         </script>
         <script type="text/javascript" src="{$jquery_file}"></script>
         <script type="text/javascript" src="{$js_file}"></script>
@@ -21,6 +22,28 @@
              .link-block {display:none;}
              
              .mce-window-head {height:15px;}
+             .table thead > tr.filter > th {background-color: #ecf6fb;padding:4px;}
+             .table tbody > tr > td {border-bottom: 1px solid #eaedef;border-top: medium none;color: #666;font-size: 12px;padding: 3px 7px;vertical-align: middle;}
+             .icon-caret-down::before, .icon-caret-up::before {content:""!important}
+             .title_box a {display:none;}
+             .panel-heading {
+                color: #555;
+                font-family: "Ubuntu Condensed",Helvetica,Arial,sans-serif;
+                font-size: 14px;
+                font-weight: 400;
+                height: 32px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .panel {
+                background-color: #fff;
+                border: 1px solid #e6e6e6;
+                border-radius: 5px;
+                box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1), 0 0 0 3px #fff inset;
+                margin-bottom: 20px;
+                padding: 20px;
+                position: relative;
+             }
             </style>
         {/literal}
     </head>

@@ -205,13 +205,16 @@ class EiCmsLinks extends Module {
         //Liste des pages cms
         $this->context->smarty->assign('cms_categories_html', $this->getCmsLinks());
  
-        //Token Admin
+        //Token Admin ( celui récupéré automatiquement ne fonctionne pas )
         $cookie = new Cookie('psAdmin');
         $token = Tools::getAdminToken('Wysiwyg' . (int) Tab::getIdFromClassName('Wysiwyg') . (int) $cookie->id_employee);
-                
+        $ajax_page = $this->context->link->getAdminLink('module=eicmslinks&controller=Wysiwyg&ajax=1',false);
+        
+        $this->context->smarty->assign('js_token', $token);
+        $this->context->smarty->assign('ajax_page', $ajax_page);
+        
         //Js nécessaires au fonctionnement de la popin
         $jquery_files = Media::getJqueryPath();
-        $this->context->smarty->assign('js_token', $token);
         $this->context->smarty->assign('jquery_file', $jquery_files[0]);
         $this->context->smarty->assign('js_file', __PS_BASE_URI__.'modules/'.$this->name.'/views/tinymce_popup.js');
         

@@ -26,6 +26,8 @@
  */
 class EiCmsLinks extends Module {
 
+	private $html;
+
     public function __construct() {
         $this->name = 'eicmslinks';
         $this->tab = 'hhennes';
@@ -41,7 +43,7 @@ class EiCmsLinks extends Module {
     }
 
     public function install() {
-        if (!parent::install())
+        if (!parent::install() || !Configuration::updateValue('eicmslinks_admin_path', 0))
             return false;
 
         //@todo: Gestion des erreurs lors de la copie des fichiers
@@ -76,6 +78,89 @@ class EiCmsLinks extends Module {
         return true;
     }
 
+	
+	
+	/**
+	 * Soumission de la configuration dans l'admin
+	 */
+	public function postProcess()
+	{
+		if (Tools::isSubmit('SubmitConfiguration'))
+		{		
+			Configuration::updateValue('eicmslinks_admin_path', Tools::getValue('eicmslinks_admin_path'));			
+			$this->html .= $this->displayConfirmation($this->l('Settings updated'));
+		}
+	}
+	
+	/**
+	 * Configuration du module
+	 */
+	public function getContent()
+	{
+		$this->html .=$this->postProcess();
+		$this->html .= $this->renderForm();
+		
+		return $this->html;
+	}
+	
+	/**
+	 * Formulaire de configuration du module
+	*/
+	public function renderForm(){
+	
+		$fields_form = array(
+			'form' => array(
+				'legend' => array(
+					'title' => $this->l('Ei cms Links Configuration'),
+					'icon' => 'icon-cogs'
+				),
+				'description' => $this->l('In order to works properly the module needs to know your adminPath (without slash) ie : admin-dev'),
+				'input' => array(
+					array(
+						'type' => 'text',
+						'label' => $this->l('Admin Path'),
+						'name' => 'eicmslinks_admin_path',
+						'required' => true,
+						'empty_message' => $this->l('Please fill the captcha private key'),
+					),
+				),
+				'submit' => array(
+					'title' => $this->l('Save'),
+					'class' => 'button btn btn-default pull-right',
+					),
+			));
+		
+		$helper = new HelperForm();
+		$helper->show_toolbar = false;
+		$lang = new Language((int)Configuration::get('PS_LANG_DEFAULT'));
+		$helper->default_form_language = $lang->id;
+		$helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') ? Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') : 0;
+		$helper->id = 'eicmslinks';
+		$helper->submit_action = 'SubmitConfiguration';
+		$helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false).'&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
+		$helper->token = Tools::getAdminTokenLite('AdminModules');
+		$helper->tpl_vars = array(
+			'fields_value' => $this->getConfigFieldsValues(),
+		);
+		
+		return $helper->generateForm(array($fields_form));
+		
+	}
+	
+	public function getConfigFieldsValues()
+	{
+		if ( Configuration::get('eicmslinks_admin_path') == '0' ) {
+			$currentPath = getcwd();
+			$paths = explode('/',$currentPath);
+			$adminDir = $paths[sizeof($paths)-1];
+		}
+		else {
+			$adminDir = Configuration::get('eicmslinks_admin_path');
+		}
+	
+		return array('eicmslinks_admin_path' => Tools::getValue('eicmslinks_admin_path', $adminDir));
+	}
+	
     /**
      * Copie du contenu d'un dossier vers un autre emplacement
      * @param string $dir2copy : Chemin du dossier à copier
@@ -212,6 +297,7 @@ class EiCmsLinks extends Module {
         
         $this->context->smarty->assign('js_token', $token);
         $this->context->smarty->assign('ajax_page', $ajax_page);
+		$this->context->smarty->assign('admin_dir', Configuration::get('eicmslinks_admin_path'));
         
         //Js nécessaires au fonctionnement de la popin
         $jquery_files = Media::getJqueryPath();

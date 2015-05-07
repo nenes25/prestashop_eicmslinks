@@ -8,6 +8,7 @@
         {/if}
         <script type="text/javascript">
                 var js_token = '{$js_token}';
+				var admin_dir = '{$admin_dir}';
                 var ajax_page = '{$ajax_page}'
         </script>
         <script type="text/javascript" src="{$jquery_file}"></script>
@@ -24,6 +25,7 @@
              .mce-window-head {height:15px;}
              .table thead > tr.filter > th {background-color: #ecf6fb;padding:4px;}
              .table tbody > tr > td {border-bottom: 1px solid #eaedef;border-top: medium none;color: #666;font-size: 12px;padding: 3px 7px;vertical-align: middle;}
+			 .table tbody > tr > td:hover { cursor:pointer;}
              .icon-caret-down::before, .icon-caret-up::before {content:""!important}
              .title_box a {display:none;}
              .panel-heading {

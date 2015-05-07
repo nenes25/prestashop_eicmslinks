@@ -15,7 +15,7 @@ $(document).ready(function() {
      * Récupération ajax des catégories
      */
     $.ajax({
-        url: "../../../../admin-dev/"+ajax_page,
+        url: "../../../../"+admin_dir+"/"+ajax_page,
         method: "post",
         data : {
             action : 'CategoriesList',
@@ -81,11 +81,11 @@ $(document).ready(function() {
           */
 	 function _getProductsList(id,reference,name) {
 		 $.ajax({
-			url: "../../../../admin-dev/"+ajax_page,
+			url: "../../../../"+admin_dir+"/"+ajax_page,
 			method: "post",
 			data : {
-                                action : 'ProductsList',
-                                token : js_token,
+				action : 'ProductsList',
+				token : js_token,
 				add_product_link_formFilter_id_product : id,
 				add_product_link_formFilter_reference : reference,
 				add_product_link_formFilter_name : name

@@ -46,12 +46,27 @@ class EiCmsLinks extends Module {
         if (!parent::install() || !Configuration::updateValue('eicmslinks_admin_path', 0))
             return false;
 
-        //@todo: Gestion des erreurs lors de la copie des fichiers
         //Copie des dossier de l'editeur tinyMce
         $this->copyDir(dirname(__FILE__) . '/tiny_mce/', dirname(__FILE__) . '/../../js/tiny_mce/plugins/');
 
         //Copie de l'override du formulaire cms de l'admin (Normalement devrait fonctionner via prestashop)
         $this->copyDir(dirname(__FILE__) . '/override/controllers/admin/templates/', dirname(__FILE__) . '/../../override/controllers/admin/templates/');
+		
+		//Création d'une tab prestashop ( nécessaire aux requêtes ajax )
+		$tab = new Tab();
+		$tab->class_name = 'wysiwyg';
+		$tab->module = $this->name;
+		$languages = Languages::getLanguages();
+		foreach ( $languages as $lang ){
+			$tab->[$lang['id_lang']] = 'EiCmsLinks';
+		}
+		try{
+			$tab->save()
+		}
+		catch (Exception $e) {
+			echo $e->getMessage();
+			return false;
+		}
 
         //Spécifique 1.5 ( on renomme le fichier de surcharge avec le bon nom car ils ne sont pas compatibles entre les versions )
         if (_PS_VERSION_ < '1.6') {
@@ -73,7 +88,7 @@ class EiCmsLinks extends Module {
         if (is_file(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form.tpl'))
             return unlink(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form.tpl');
 
-        return true;
+		//@ToDo : Supprimer la tab créée
 
         return true;
     }

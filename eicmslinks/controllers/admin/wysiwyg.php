@@ -44,10 +44,16 @@ class WysiwygController extends ModuleAdminController {
             echo '<link rel="stylesheet" type="text/css" href="'.$css_key.'" type="'.$css_type.'"/>';
         }
         //Géneration du tree des catégories
-        $categoryTree = new HelperTreeCategories('categories-tree', $this->l('Check the category to display the link'));
-        echo $categoryTree->setAttribute()
-                ->setInputName('id-category-for-insert')
-                ->render();
+        if (_PS_VERSION_ < '1.6') {
+            $categoryTree = new Helper();
+            echo $categoryTree->renderCategoryTree(2,array(),'id-category-for-insert');
+        }
+        else {
+            $categoryTree = new HelperTreeCategories('categories-tree', $this->l('Check the category to display the link'));
+            echo $categoryTree->setAttribute()
+                    ->setInputName('id-category-for-insert')
+                    ->render();
+        }
     }
 
     /**

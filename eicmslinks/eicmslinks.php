@@ -26,7 +26,7 @@
  */
 class EiCmsLinks extends Module {
 
-	private $html;
+    private $html;
 
     public function __construct() {
         $this->name = 'eicmslinks';
@@ -51,22 +51,21 @@ class EiCmsLinks extends Module {
 
         //Copie de l'override du formulaire cms de l'admin (Normalement devrait fonctionner via prestashop)
         $this->copyDir(dirname(__FILE__) . '/override/controllers/admin/templates/', dirname(__FILE__) . '/../../override/controllers/admin/templates/');
-		
-		//Création d'une tab prestashop ( nécessaire aux requêtes ajax )
-		$tab = new Tab();
-		$tab->class_name = 'wysiwyg';
-		$tab->module = $this->name;
-		$languages = Languages::getLanguages();
-		foreach ( $languages as $lang ){
-			$tab->[$lang['id_lang']] = 'EiCmsLinks';
-		}
-		try{
-			$tab->save()
-		}
-		catch (Exception $e) {
-			echo $e->getMessage();
-			return false;
-		}
+
+        //Création d'une tab prestashop ( nécessaire pour le controller back office )
+        $tab = new Tab();
+        $tab->class_name = 'wysiwyg';
+        $tab->module = $this->name;
+        $languages = Language::getLanguages();
+        foreach ($languages as $lang) {
+            $tab->name[$lang['id_lang']] = 'EiCmsLinks';
+        }
+        try {
+            $tab->save();
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            return false;
+        }
 
         //Spécifique 1.5 ( on renomme le fichier de surcharge avec le bon nom car ils ne sont pas compatibles entre les versions )
         if (_PS_VERSION_ < '1.6') {
@@ -77,6 +76,7 @@ class EiCmsLinks extends Module {
     }
 
     public function uninstall() {
+ 
         if (!parent::uninstall())
             return false;
 
@@ -88,94 +88,92 @@ class EiCmsLinks extends Module {
         if (is_file(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form.tpl'))
             return unlink(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form.tpl');
 
-		//@ToDo : Supprimer la tab créée
-
+        //Suppression de la tab admin
+        $id_tab = Tab::getIdFromClassName('wysiwyg');
+        if ( $id_tab ) {
+            $tab = new Tab($id_tab);
+            $tab->delete();
+        }
+            
         return true;
     }
 
-	
-	
-	/**
-	 * Soumission de la configuration dans l'admin
-	 */
-	public function postProcess()
-	{
-		if (Tools::isSubmit('SubmitConfiguration'))
-		{		
-			Configuration::updateValue('eicmslinks_admin_path', Tools::getValue('eicmslinks_admin_path'));			
-			$this->html .= $this->displayConfirmation($this->l('Settings updated'));
-		}
-	}
-	
-	/**
-	 * Configuration du module
-	 */
-	public function getContent()
-	{
-		$this->html .=$this->postProcess();
-		$this->html .= $this->renderForm();
-		
-		return $this->html;
-	}
-	
-	/**
-	 * Formulaire de configuration du module
-	*/
-	public function renderForm(){
-	
-		$fields_form = array(
-			'form' => array(
-				'legend' => array(
-					'title' => $this->l('Ei cms Links Configuration'),
-					'icon' => 'icon-cogs'
-				),
-				'description' => $this->l('In order to works properly the module needs to know your adminPath (without slash) ie : admin-dev'),
-				'input' => array(
-					array(
-						'type' => 'text',
-						'label' => $this->l('Admin Path'),
-						'name' => 'eicmslinks_admin_path',
-						'required' => true,
-						'empty_message' => $this->l('Please fill the captcha private key'),
-					),
-				),
-				'submit' => array(
-					'title' => $this->l('Save'),
-					'class' => 'button btn btn-default pull-right',
-					),
-			));
-		
-		$helper = new HelperForm();
-		$helper->show_toolbar = false;
-		$lang = new Language((int)Configuration::get('PS_LANG_DEFAULT'));
-		$helper->default_form_language = $lang->id;
-		$helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') ? Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') : 0;
-		$helper->id = 'eicmslinks';
-		$helper->submit_action = 'SubmitConfiguration';
-		$helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false).'&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
-		$helper->token = Tools::getAdminTokenLite('AdminModules');
-		$helper->tpl_vars = array(
-			'fields_value' => $this->getConfigFieldsValues(),
-		);
-		
-		return $helper->generateForm(array($fields_form));
-		
-	}
-	
-	public function getConfigFieldsValues()
-	{
-		if ( Configuration::get('eicmslinks_admin_path') == '0' ) {
-			$currentPath = getcwd();
-			$paths = explode('/',$currentPath);
-			$adminDir = $paths[sizeof($paths)-1];
-		}
-		else {
-			$adminDir = Configuration::get('eicmslinks_admin_path');
-		}
-	
-		return array('eicmslinks_admin_path' => Tools::getValue('eicmslinks_admin_path', $adminDir));
-	}
-	
+    /**
+     * Soumission de la configuration dans l'admin
+     */
+    public function postProcess() {
+        if (Tools::isSubmit('SubmitConfiguration')) {
+            Configuration::updateValue('eicmslinks_admin_path', Tools::getValue('eicmslinks_admin_path'));
+            $this->html .= $this->displayConfirmation($this->l('Settings updated'));
+        }
+    }
+
+    /**
+     * Configuration du module
+     */
+    public function getContent() {
+        $this->html .=$this->postProcess();
+        $this->html .= $this->renderForm();
+
+        return $this->html;
+    }
+
+    /**
+     * Formulaire de configuration du module
+     */
+    public function renderForm() {
+
+        $fields_form = array(
+            'form' => array(
+                'legend' => array(
+                    'title' => $this->l('Ei cms Links Configuration'),
+                    'icon' => 'icon-cogs'
+                ),
+                'description' => $this->l('In order to works properly the module needs to know your adminPath (without slash) ie : admin-dev'),
+                'input' => array(
+                    array(
+                        'type' => 'text',
+                        'label' => $this->l('Admin Path'),
+                        'name' => 'eicmslinks_admin_path',
+                        'required' => true,
+                        'empty_message' => $this->l('Please fill the captcha private key'),
+                    ),
+                ),
+                'submit' => array(
+                    'title' => $this->l('Save'),
+                    'class' => 'button btn btn-default pull-right',
+                ),
+        ));
+
+        $helper = new HelperForm();
+        $helper->show_toolbar = false;
+        $lang = new Language((int) Configuration::get('PS_LANG_DEFAULT'));
+        $helper->default_form_language = $lang->id;
+        $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') ? Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') : 0;
+        $helper->id = 'eicmslinks';
+        $helper->submit_action = 'SubmitConfiguration';
+        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false) . '&configure=' . $this->name . '&tab_module=' . $this->tab . '&module_name=' . $this->name;
+        $helper->token = Tools::getAdminTokenLite('AdminModules');
+        $helper->tpl_vars = array(
+            'fields_value' => $this->getConfigFieldsValues(),
+        );
+
+        return $helper->generateForm(array($fields_form));
+    }
+
+    public function getConfigFieldsValues() {
+        if (Configuration::get('eicmslinks_admin_path') == '0') {
+            $currentPath = getcwd();
+            $paths = explode('/', $currentPath);
+            $adminDir = $paths[sizeof($paths) - 1];
+        } 
+        else {
+            $adminDir = Configuration::get('eicmslinks_admin_path');
+        }
+
+        return array('eicmslinks_admin_path' => Tools::getValue('eicmslinks_admin_path', $adminDir));
+    }
+
     /**
      * Copie du contenu d'un dossier vers un autre emplacement
      * @param string $dir2copy : Chemin du dossier à copier
@@ -183,25 +181,17 @@ class EiCmsLinks extends Module {
      * @return void
      */
     public function copyDir($dir2copy, $dir_paste) {
-        // On vérifie si $dir2copy est un dossier
         if (is_dir($dir2copy)) {
-            // Si oui, on l'ouvre
             if ($dhd = opendir($dir2copy)) {
-                // On liste les dossiers et fichiers de $dir2copy
                 while (($file = readdir($dhd)) !== false) {
-                    // Si le dossier dans lequel on veut coller n'existe pas, on le créé
                     if (!is_dir($dir_paste))
                         $create_dir = mkdir($dir_paste, 0777);
 
-                    // S'il s'agit d'un dossier, on relance la fonction récursive
                     if (is_dir($dir2copy . $file) && $file != '..' && $file != '.')
                         $this->copyDir($dir2copy . $file . '/', $dir_paste . $file . '/');
-                    // S'il sagit d'un fichier, on le copue simplement
                     elseif ($file != '..' && $file != '.')
                         $copy_file = copy($dir2copy . $file, $dir_paste . $file);
                 }
-
-                // On ferme $dir2copy
                 closedir($dhd);
             }
         }
@@ -235,28 +225,28 @@ class EiCmsLinks extends Module {
             $cms->content = urldecode($cms->content);
 
         $link_model = new Link();
-        
+
         //Mise à jour des liens vers les pages cms
         preg_match_all('#{{cms url=([0-9])}}#', $cms->content, $cms_links);
 
-        if (isset($cms_links[1]) && sizeof($cms_links[1])) {      
+        if (isset($cms_links[1]) && sizeof($cms_links[1])) {
             foreach ($cms_links[1] as $link) {
                 $link_url = $link_model->getCMSLink($link);
                 $cms->content = preg_replace('#{{cms url=' . $link . '}}#', $link_url, $cms->content);
             }
         }
-        
+
         //Mise à jour des liens vers les pages categories
         preg_match_all('#{{category url=([0-9])}}#', $cms->content, $category_links);
 
         if (isset($category_links[1]) && sizeof($category_links[1])) {
             foreach ($category_links[1] as $category_link) {
                 $category_link_url = $link_model->getCategoryLink($category_link);
-                $cms->content = preg_replace('#{{category url=' . $category_link. '}}#', $category_link_url, $cms->content);
+                $cms->content = preg_replace('#{{category url=' . $category_link . '}}#', $category_link_url, $cms->content);
             }
         }
-		
-		//Mise à jour des liens vers les pages produits
+
+        //Mise à jour des liens vers les pages produits
         preg_match_all('#{{product url=([0-9])}}#', $cms->content, $product_links);
 
         if (isset($product_links[1]) && sizeof($product_links[1])) {
@@ -301,24 +291,24 @@ class EiCmsLinks extends Module {
      * Affichage de la popin TinyMce dans l'admin
      */
     public function displayTinyMcePopup() {
-        
+
         //Liste des pages cms
         $this->context->smarty->assign('cms_categories_html', $this->getCmsLinks());
- 
+
         //Token Admin ( celui récupéré automatiquement ne fonctionne pas )
         $cookie = new Cookie('psAdmin');
         $token = Tools::getAdminToken('Wysiwyg' . (int) Tab::getIdFromClassName('Wysiwyg') . (int) $cookie->id_employee);
-        $ajax_page = $this->context->link->getAdminLink('module=eicmslinks&controller=Wysiwyg&ajax=1',false);
-        
+        $ajax_page = $this->context->link->getAdminLink('module=eicmslinks&controller=Wysiwyg&ajax=1', false);
+
         $this->context->smarty->assign('js_token', $token);
         $this->context->smarty->assign('ajax_page', $ajax_page);
-		$this->context->smarty->assign('admin_dir', Configuration::get('eicmslinks_admin_path'));
-        
+        $this->context->smarty->assign('admin_dir', Configuration::get('eicmslinks_admin_path'));
+
         //Js nécessaires au fonctionnement de la popin
         $jquery_files = Media::getJqueryPath();
         $this->context->smarty->assign('jquery_file', $jquery_files[0]);
-        $this->context->smarty->assign('js_file', __PS_BASE_URI__.'modules/'.$this->name.'/views/tinymce_popup.js');
-        
+        $this->context->smarty->assign('js_file', __PS_BASE_URI__ . 'modules/' . $this->name . '/views/tinymce_popup.js');
+
         //Version de prestashop concernée
         if (_PS_VERSION_ > '1.6')
             $ps_version = '16';

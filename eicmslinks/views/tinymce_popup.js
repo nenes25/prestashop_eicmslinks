@@ -33,6 +33,7 @@ $(document).ready(function() {
 
     /**
      * Insertion d'une catégorie
+     * Prestashop 1.6
      */
     $(document).on('click','#categories-tree input', function() {
         if ( $(this).next().next('label').text() )
@@ -41,6 +42,16 @@ $(document).ready(function() {
             label = $.trim($(this).parent().text());
         addLink('{{category url='+$(this).val()+'}}',label);
     });
+    
+    /**
+     * Insertion d'un catégorie
+     * Prestashop 1.5
+     */
+     $(document).on('click','.category_label', function() {
+        label = $(this).text();
+        value = $(this).prev('input').val();
+        addLink('{{category url='+value+'}}',label);
+     });
 	
 	/**
 	 * Insertion d'un produit
@@ -68,7 +79,7 @@ $(document).ready(function() {
          /**
           * Réinitialisation de la recherche produit
           */
-         $('#product_content').on('click','.btn-warning',function(){
+         $('#product_content').on('click','.btn-warning,input[name="submitResetadd_product_link_form"]',function(){
 		_getProductsList();
 		return false;
 	 });

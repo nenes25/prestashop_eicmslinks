@@ -22,6 +22,7 @@
              ul.menu-link li {display: inline-block;margin-left:8px;text-transform:capitalize;}
              .link-block {display:none;}
              
+             /* Prestashop 1.6 */
              .mce-window-head {height:15px;}
              .table thead > tr.filter > th {background-color: #ecf6fb;padding:4px;}
              .table tbody > tr > td {border-bottom: 1px solid #eaedef;border-top: medium none;color: #666;font-size: 12px;padding: 3px 7px;vertical-align: middle;}
@@ -46,6 +47,9 @@
                 padding: 20px;
                 position: relative;
              }
+             /* Prestashop 1.5 */
+             .table_grid img {display:none;}
+             .category_label:hover {cursor:pointer;}
             </style>
         {/literal}
     </head>

@@ -32,7 +32,7 @@ class EiCmsLinks extends Module {
         $this->name = 'eicmslinks';
         $this->tab = 'hhennes';
         $this->author = 'hhennes';
-        $this->version = '0.5.0';
+        $this->version = '0.6.0';
         $this->need_instance = 0;
         $this->bootstrap = true;
 
@@ -212,51 +212,51 @@ class EiCmsLinks extends Module {
 
     /**
      * Mise à jour de l'objet cms pour remplacer les variables d'url des lien
-     * @param Cms $cms : Object cms || null
-     * @return Cms $cms : Object cms avec valeur du contenu mis à jour
+     * @param string : contenu ou il faut remplacer les liens
+     * @return string : contenu avec les liens remplacés
      */
-    public static function updateCmsLinksDisplay($cms = null) {
+    public static function updateCmsLinksDisplay($content = null) {
 
-        if ($cms === null)
+        if ($content === null)
             return;
 
         //Dans prestashop 1.6 les caractères { et } sont encodés
         if (_PS_VERSION_ > '1.6')
-            $cms->content = urldecode($cms->content);
+            $content = urldecode($content);
 
         $link_model = new Link();
 
         //Mise à jour des liens vers les pages cms
-        preg_match_all('#{{cms url=([0-9])}}#', $cms->content, $cms_links);
+        preg_match_all('#{{cms url=([0-9])}}#', $content, $cms_links);
 
         if (isset($cms_links[1]) && sizeof($cms_links[1])) {
             foreach ($cms_links[1] as $link) {
                 $link_url = $link_model->getCMSLink($link);
-                $cms->content = preg_replace('#{{cms url=' . $link . '}}#', $link_url, $cms->content);
+                $content = preg_replace('#{{cms url=' . $link . '}}#', $link_url, $content);
             }
         }
 
         //Mise à jour des liens vers les pages categories
-        preg_match_all('#{{category url=([0-9])}}#', $cms->content, $category_links);
+        preg_match_all('#{{category url=([0-9])}}#', $content, $category_links);
 
         if (isset($category_links[1]) && sizeof($category_links[1])) {
             foreach ($category_links[1] as $category_link) {
                 $category_link_url = $link_model->getCategoryLink($category_link);
-                $cms->content = preg_replace('#{{category url=' . $category_link . '}}#', $category_link_url, $cms->content);
+                $content = preg_replace('#{{category url=' . $category_link . '}}#', $category_link_url, $content);
             }
         }
 
         //Mise à jour des liens vers les pages produits
-        preg_match_all('#{{product url=([0-9])}}#', $cms->content, $product_links);
+        preg_match_all('#{{product url=([0-9])}}#', $content, $product_links);
 
         if (isset($product_links[1]) && sizeof($product_links[1])) {
             foreach ($product_links[1] as $product_link) {
                 $product_link_url = $link_model->getProductLink($product_link);
-                $cms->content = preg_replace('#{{product url=' . $product_link . '}}#', $product_link_url, $cms->content);
+                $content = preg_replace('#{{product url=' . $product_link . '}}#', $product_link_url, $content);
             }
         }
 
-        return $cms;
+        return $content;
     }
 
     /**

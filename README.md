@@ -2,7 +2,7 @@
 Toutes les informations d'installation sont disponibles sur la page : http://www.h-hennes.fr/blog/prestashop-liens-dynamiques-dans-lediteur-tinymce/
 
 # prestashop_eicmslinks
-Add Cms Links tools in tinyMce Editor (only for cms and Category pages)
+Add Cms Links tools in tinyMce Editor ( on CmsPage / Products and Products Categories )
 It allows you to insert dynamics links to the cms pages / products categories / products.
 
 In order to make it work after installation you need to configure the admin path

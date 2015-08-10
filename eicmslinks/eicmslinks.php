@@ -32,7 +32,7 @@ class EiCmsLinks extends Module {
         $this->name = 'eicmslinks';
         $this->tab = 'hhennes';
         $this->author = 'hhennes';
-        $this->version = '0.6.0';
+        $this->version = '0.7.0';
         $this->need_instance = 0;
         $this->bootstrap = true;
 

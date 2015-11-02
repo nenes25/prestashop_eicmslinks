@@ -65,27 +65,35 @@ class WysiwygController extends ModuleAdminController {
 	
 		//Récupération des produits
 		$products = Db::getInstance()->ExecuteS("SELECT p.id_product,p.reference, pl.name 
-												FROM ps_product p
-												LEFT JOIN ps_product_lang pl ON ( p.id_product = pl.id_product AND pl.id_lang = ".$this->context->language->id.")
-												" .$filterCond);
+							FROM ps_product p
+							LEFT JOIN ps_product_lang pl ON ( p.id_product = pl.id_product AND pl.id_lang = ".$this->context->language->id.")
+							" .$filterCond);
 		$fields_list = array(
 						'id_product' => array(
 							'title' => $this->l('id'),
 							'type' => 'text',
 							'width' => 50,
-							'class' => 'product_id'
+							'class' => 'product_id product-link'
 						),
 						'reference' => array ( 
 							'title' => $this->l('ref'),
 							'type' => 'text',
 							'width' => 100,
+                                                        'class' => 'product-link'
 						),
 						'name' => array ( 
 							'title' => $this->l('name'),
 							'type' => 'text',
 							'width' => 150,
-							'class' => 'product_name'
+							'class' => 'product_name product-link'
 						),
+                                                'add_link' => array(
+                                                    'title' => $this->l('Add to cart link'),
+                                                    'type' => 'text',
+                                                    'width' => 150,
+                                                    'class' => 'product-add-cart-link',
+                                                    'search' => false,
+                                                )
 					);
 	
 		$productList = new HelperList();

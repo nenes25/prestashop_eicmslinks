@@ -32,7 +32,7 @@ class EiCmsLinks extends Module {
         $this->name = 'eicmslinks';
         $this->tab = 'hhennes';
         $this->author = 'hhennes';
-        $this->version = '0.7.0';
+        $this->version = '0.8.0';
         $this->need_instance = 0;
         $this->bootstrap = true;
 
@@ -253,6 +253,16 @@ class EiCmsLinks extends Module {
             foreach ($product_links[1] as $product_link) {
                 $product_link_url = $link_model->getProductLink($product_link);
                 $content = preg_replace('#{{product url=' . $product_link . '}}#', $product_link_url, $content);
+            }
+        }
+
+        //Mise à jour des liens d'ajout au panier
+        preg_match_all('#{{cart url=([0-9])}}#', $content, $product_links);
+
+        if (isset($product_links[1]) && sizeof($product_links[1])) {
+            foreach ($product_links[1] as $product_link) {
+                $product_cart_url = sprintf('index.php?controller=cart&add=1&qty=1&id_product=%s&token=%s',$product_link,Tools::getToken());
+                $content = preg_replace('#{{cart url=' . $product_link . '}}#', $product_cart_url, $content);
             }
         }
 

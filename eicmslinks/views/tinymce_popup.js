@@ -44,7 +44,7 @@ $(document).ready(function() {
     });
     
     /**
-     * Insertion d'un catégorie
+     * Insertion d'une catégorie
      * Prestashop 1.5
      */
      $(document).on('click','.category_label', function() {
@@ -56,15 +56,24 @@ $(document).ready(function() {
 	/**
 	 * Insertion d'un produit
 	 */
-	 $(document).on('click','table.add_product_link_form tbody tr', function() {
-		id_product = $.trim($(this).children('td.product_id').text());
-		product_name = $.trim($(this).children('td.product_name').text());
+	 $(document).on('click','table.add_product_link_form tbody tr td.product-link', function() {
+		id_product = $.trim($(this).parent().children('td.product_id').text());
+		product_name = $.trim($(this).parent().children('td.product_name').text());
 		addLink('{{product url='+ id_product +'}}',product_name);
-    });
+        });
+        
+        /**
+         * Ajout d'un lien d'ajout au panier
+         */
+         $(document).on('click','.product-add-cart-link',function(){
+            id_product = $.trim($(this).parent().children('td.product_id').text());
+	    product_name = $.trim($(this).parent().children('td.product_name').text());
+            addLink('{{cart url='+ id_product +'}}',product_name);
+         });
 	
 	/**
 	 * Gestion de la recherche des produits
-     * ( Effectuée en ajax )	 
+         * ( Effectuée en ajax )	 
 	 */
 	 $('#product_content').on('click','#submitFilterButtonadd_product_link_form',function(){
 		

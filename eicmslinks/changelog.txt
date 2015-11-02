@@ -14,3 +14,4 @@
 2015-08-10 V 0.6.0 : - Gestion des liens dynamiques dans l'éditeur tinyMce de la description des catégories + affichage Front
 2015-08-10 V 0.7.0 : - Gestion des liens dynamiques dans l'éditeur tinyMce de la description et description courte des produits + affichage Front
 2015-08-21 V 0.7.1 : - Correctif affichage du tree des catégories à partir de prestashop 1.6.1.1 
+2015-11-02 V 0.8.0 : - Ajout de liens dynamiques d'ajout au panier des produits

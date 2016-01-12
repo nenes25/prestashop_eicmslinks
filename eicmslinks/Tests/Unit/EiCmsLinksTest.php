@@ -4,19 +4,33 @@
  *
  * @author herve
  */
-//@ToDo : Fixé en dur pour tests locaux, rendre dynamique
-include_once '/var/www/public/prestashop/prestashop_1-6-1-1/config/config.inc.php';
+//@ToDo : Pour l'instant le path d'inclusion est déterminé par le chemin d'exécution
+//Il faudra optimiser ce point, car les tests doivent être lancés de la manière suivante
+// phpunit Tests/Unit/CustomerAutoGroupsTest.php à la racine du dossier du module
+
+$exec_dir = str_replace('modules/eicmslinks','',trim(shell_exec('pwd')));
+include_once $exec_dir.'config/config.inc.php';
 include_once dirname(__FILE__).'/../../eicmslinks.php';
 
 class EiCmsLinksTest extends PHPUnit_Framework_TestCase {
         
     //Pour tests locaux @ToDo : de manière dynamique
-    protected $_baseDir = '/var/www/public/prestashop/prestashop_1-6-1-1/';
+    protected $_baseDir;
     
     protected $_cmsList = false;
+     
+    /**
+     * Surcharge pour gérer le contexte du chemin
+     */
+    public function __construct($name = null, array $data = [], $dataName = '')
+    {
+        $this->_baseDir = str_replace('modules/eicmslinks','',trim(shell_exec('pwd')));
+        parent::__construct($name,$data, $dataName);
+    }
     
     /**
      * Vérifie que l'installation des overrides (fichiers) du module est OK
+     * @group eicmslinks_install
      */
     public function testInstallOverrides() {
 
@@ -36,6 +50,7 @@ class EiCmsLinksTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Vérifie que l'onglet BO est bien installé
+     * @group eicmslinks_install
      */
     public function testInstallTab(){
         $id_tab = Tab::getIdFromClassName('wysiwyg');
@@ -44,6 +59,7 @@ class EiCmsLinksTest extends PHPUnit_Framework_TestCase {
     
     /**
      * Teste que les fichiers de l'éditeur de textes sont bien en place
+     * @group eicmslinks_install
      */
     public function testInstallTinyMce(){
         
@@ -63,6 +79,7 @@ class EiCmsLinksTest extends PHPUnit_Framework_TestCase {
     
     /**
      * Test que le path est bien configuré dans l'admin
+     * @group eicmslinks_install
      */
     public function testConfigAdminPath(){  
         
@@ -72,6 +89,7 @@ class EiCmsLinksTest extends PHPUnit_Framework_TestCase {
     
     /**
      * Vérifie qu'au moins 2 pages Cms actives existe
+     * @group eicmslinks_install
      */
     public function testCmsPageExists(){
         
@@ -83,6 +101,7 @@ class EiCmsLinksTest extends PHPUnit_Framework_TestCase {
     
     /**
      * Vérifie qu'au moins 2 produits existe
+     * @group eicmslinks_install
      */
     public function testProductExists() {
 
@@ -103,6 +122,7 @@ class EiCmsLinksTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Vérifie qu'au moins une catégorie existe
+     * @group eicmslinks_install
      */
     public function testCategoryExists(){
   

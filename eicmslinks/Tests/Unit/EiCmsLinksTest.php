@@ -17,6 +17,9 @@ class EiCmsLinksTest extends PHPUnit_Framework_TestCase {
     //Pour tests locaux @ToDo : de manière dynamique
     protected $_baseDir;
     
+    //Nom du module
+    protected $_moduleName = 'eicmslinks';
+    
     protected $_cmsList = false;
      
     /**
@@ -24,8 +27,16 @@ class EiCmsLinksTest extends PHPUnit_Framework_TestCase {
      */
     public function __construct($name = null, array $data = [], $dataName = '')
     {
-        $this->_baseDir = str_replace('modules/eicmslinks','',trim(shell_exec('pwd')));
+        $this->_baseDir = str_replace('modules/'.$this->_moduleName,'',trim(shell_exec('pwd')));
         parent::__construct($name,$data, $dataName);
+    }
+    
+    /**
+     * Vérification que le module est installé (via la méthode prestashop)
+     * @group eicmslinks_install
+     */
+    public function testModuleIsInstalled() {
+        $this->assertTrue(Module::isInstalled($this->_moduleName));
     }
     
     /**

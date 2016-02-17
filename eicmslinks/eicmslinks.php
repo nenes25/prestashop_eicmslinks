@@ -32,7 +32,7 @@ class EiCmsLinks extends Module {
         $this->name = 'eicmslinks';
         $this->tab = 'hhennes';
         $this->author = 'hhennes';
-        $this->version = '0.8.0';
+        $this->version = '0.8.1';
         $this->need_instance = 0;
         $this->bootstrap = true;
 
@@ -55,6 +55,9 @@ class EiCmsLinks extends Module {
         //Création d'une tab prestashop ( nécessaire pour le controller back office )
         $tab = new Tab();
         $tab->class_name = 'wysiwyg';
+        //On va la ranger dans "Préférences comme les pages cms y sont insérée
+        $id_parent = Tab::getIdFromClassName('AdminParentPreferences');
+        $tab->id_parent = $id_parent;
         $tab->module = $this->name;
         $languages = Language::getLanguages();
         foreach ($languages as $lang) {
@@ -84,10 +87,9 @@ class EiCmsLinks extends Module {
         if (!$this->deleteDir(dirname(__FILE__) . '/../../js/tiny_mce/plugins/eicmslinks/'))
             return false;
 
-        //Si la suppression du template admin si la desinstall prestashop n'a pas fonctionné on le supprime 
-        if (is_file(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form.tpl'))
-            return unlink(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form.tpl');
-
+        //Suppression des overrides admin (non bloquant)
+        $this->_unInstallFiles();
+       
         //Suppression de la tab admin
         $id_tab = Tab::getIdFromClassName('wysiwyg');
         if ( $id_tab ) {
@@ -328,6 +330,44 @@ class EiCmsLinks extends Module {
         $this->context->smarty->assign('ps_version', $ps_version);
 
         echo $this->display(__FILE__, 'views/tinymce_popup.tpl');
+    }
+
+    
+    /**
+     * Suppression des fichiers de surcharge admin lors de la desinstallation du module
+     * On supprime uniquement les fichiers, car il est possible que d'autres modules surchargent un autre template
+     */
+    protected function _unInstallFiles() {
+
+        $deleted = true;
+
+        //Si la suppression du template admin si la desinstall prestashop n'a pas fonctionné on le supprime 
+        if (is_file(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form.tpl'))
+            if (!unlink(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form.tpl'))
+                $deleted = false;
+
+        if (_PS_VERSION_ < '1.6') {
+            if (is_file(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form16.tpl'))
+                ;
+            if (!unlink(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form16.tpl'))
+                $deleted = false;
+        }
+        else {
+            if (is_file(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form15.tpl'))
+                ;
+            if (!unlink(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form15.tpl'))
+                $deleted = false;
+        }
+
+        if (is_file(dirname(__FILE__) . '/../../override/controllers/admin/templates/categories/helpers/form/form.tpl'))
+            if (!unlink(dirname(__FILE__) . '/../../override/controllers/admin/templates/categories/helpers/form/form.tpl'))
+                $deleted = false;
+
+        if (is_file(dirname(__FILE__) . '/../../override/controllers/admin/templates/products/helpers/form/form.tpl'))
+            if (!unlink(dirname(__FILE__) . '/../../override/controllers/admin/templates/products/helpers/form/form.tpl'))
+                $deleted = false;
+
+        return $deleted;
     }
 
 }

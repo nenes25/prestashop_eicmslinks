@@ -23,6 +23,7 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  http://www.h-hennes.fr/blog/
 */
+  define ('_PS_ADMIN_DIR_',1);
   require_once(dirname(__FILE__).'/../../../../config/config.inc.php');
   require_once dirname(__FILE__).'/../../../../modules/eicmslinks/eicmslinks.php';
   

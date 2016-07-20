@@ -32,7 +32,7 @@ class EiCmsLinks extends Module {
         $this->name = 'eicmslinks';
         $this->tab = 'hhennes';
         $this->author = 'hhennes';
-        $this->version = '0.8.1';
+        $this->version = '0.9.0';
         $this->need_instance = 0;
         $this->bootstrap = true;
 
@@ -218,6 +218,9 @@ class EiCmsLinks extends Module {
      * @return string : contenu avec les liens remplacés
      */
     public static function updateCmsLinksDisplay($content = null) {
+        
+        //Inclusion de la classe des widgets
+        include_once dirname(__FILE__).'/classes/Widget.php';
 
         if ($content === null)
             return;
@@ -267,6 +270,29 @@ class EiCmsLinks extends Module {
                 $content = preg_replace('#{{cart url=' . $product_link . '}}#', $product_cart_url, $content);
             }
         }
+        
+        //Gestion des widgets
+        preg_match_all('#{{widget name="(.*)"(.*)}}#U', $content, $widgets);
+         
+        if (isset($widgets[1]) && sizeof($widgets[1])) {
+            $i=0;
+            foreach ($widgets[1] as $widget) {
+                $widget = trim($widget);
+                if (is_file(dirname(__FILE__).'/classes/'.$widget.'.php')) {
+                    include_once dirname(__FILE__).'/classes/'.$widget.'.php';
+                    $widgetParams = $widgets[2][$i];
+                    try {
+                        $widgetObject = new $widget($widgetParams);
+                        $widgetContent = $widgetObject->display();
+                        $content = str_replace('{{widget name="'.$widget.'"'.$widgetParams.'}}',$widgetContent,$content);
+                    }
+                    catch ( PrestaShopExceptionCore $e ) {
+                        echo $e->getMessage();
+                    }
+                }
+                $i++;
+            }
+        }
 
         return $content;
     }
@@ -300,12 +326,40 @@ class EiCmsLinks extends Module {
     }
 
     /**
+     * Récupération de la liste des widgets
+     * @return array $widgets
+     */
+    public function getWidgetsList(){
+        
+        $class_dir = dirname(__FILE__).'/classes/';
+        
+        $widgets = array();
+        
+        include_once $class_dir.'Widget.php';
+        
+        $op = opendir($class_dir);
+        while ( $file = readdir($op)) {
+            if ( preg_match('#^Widget(.*)\.php#',$file,$widget_name) && $file != 'Widget.php') {
+                include_once $class_dir.$file;
+                $className = 'Widget'.$widget_name[1];
+                $widgets[] = array(
+                    'name' =>$widget_name[1],
+                    'params' => $className::getAllowedParams()
+                );
+            }
+        }
+        
+        return $widgets;
+    }
+    /**
      * Affichage de la popin TinyMce dans l'admin
      */
     public function displayTinyMcePopup() {
 
         //Liste des pages cms
         $this->context->smarty->assign('cms_categories_html', $this->getCmsLinks());
+        //Liste des widgets du module
+        $this->context->smarty->assign('widgets_list', $this->getWidgetsList());
 
         //Token Admin ( celui récupéré automatiquement ne fonctionne pas )
         $cookie = new Cookie('psAdmin');

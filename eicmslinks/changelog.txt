@@ -16,3 +16,7 @@
 2015-08-21 V 0.7.1 : - Correctif affichage du tree des catégories à partir de prestashop 1.6.1.1 
 2015-11-02 V 0.8.0 : - Ajout de liens dynamiques d'ajout au panier des produits
 2016-02-17 V 0.8.1 : - Correction de la desinstallation
+2016-07-20 V 0.9.0 : - Nouvelle fonctionnalité : gestion de widgets (çad traitement de templates ) dans les contenus de la page cms
+                     - Widget implémenté :
+                        - LoginWidget : Permets de mettre un bloc de login dans une page cms
+                        - ProductWidget : Permets d'afficher les produits des nouveautés, promotions ou d'une catégorie dans les contenus

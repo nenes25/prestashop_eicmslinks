@@ -8,7 +8,7 @@
         {/if}
         <script type="text/javascript">
                 var js_token = '{$js_token}';
-				var admin_dir = '{$admin_dir}';
+		var admin_dir = '{$admin_dir}';
                 var ajax_page = '{$ajax_page}'
         </script>
         <script type="text/javascript" src="{$jquery_file}"></script>
@@ -58,6 +58,7 @@
 		<li><a class="show-block-link" rel="cms_content" href="#">{l s='cms content' mod='eicmslinks'}</a></li>
 		<li><a class="show-block-link" rel="category_content" href="#">{l s='category content' mod='eicmslinks'}</a></li>
 		<li><a class="show-block-link" rel="product_content" href="#">{l s='product content' mod='eicmslinks'}</a></li>
+                <li><a class="show-block-link" rel="widgets" href="#">{l s='widgets' mod='eicmslinks'}</a></li>
 	</ul>
 	<br style="clear:both;" />
         <p>{l s='click on the element to add it to the page content' mod='eicmslinks'}</p>
@@ -74,6 +75,23 @@
 			<!-- Content dynamicaly loaded -->
 			Contenu produits
 		</div>
+                <div id="widgets" class="link-block">
+                    <ul>
+                    {foreach from=$widgets_list item=widget}
+                        <li>
+                            <a href="#" onclick="addWidget('{$widget.name}');">{$widget.name}</a>
+                            {if sizeof($widget.params)}
+                                <div class="hint">
+                                    {l s='Allowed options' mod='eicmslinks'} :
+                                    {foreach from=$widget.params item=param}
+                                        {$param},
+                                    {/foreach}
+                                </div>
+                            {/if}
+                        </li>
+                    {/foreach}
+                     </ul>
+                </div>
                 		
         <div class="mceActionPanel">
             <center>
@@ -98,6 +116,22 @@
                     tinyMCEPopup.close();	
                 {/if}
             }
+            
+            /**
+             * Ajout d'un widget dans l'editeur
+             * @param string name
+             * @returns void
+             */
+            function addWidget(name) {
+                {if $ps_version == '16'}
+                    parent.tinymce.activeEditor.execCommand('mceInsertContent', false, '{ldelim}{ldelim}widget name="Widget'+name+'"{rdelim}{rdelim}');
+                    top.tinymce.activeEditor.windowManager.close();
+                {else}
+                    tinyMCE.execCommand('mceInsertContent',false,'{ldelim}{ldelim}widget name="Widget'+name+'"{rdelim}{rdelim}');
+                    tinyMCEPopup.close();	
+                {/if}
+            }
+            
             /**
              * Fermeture de la popup
              * @returns void

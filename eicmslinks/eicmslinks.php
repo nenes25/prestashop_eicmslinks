@@ -79,7 +79,7 @@ class EiCmsLinks extends Module {
     }
 
     public function uninstall() {
- 
+
         if (!parent::uninstall())
             return false;
 
@@ -89,14 +89,14 @@ class EiCmsLinks extends Module {
 
         //Suppression des overrides admin (non bloquant)
         $this->_unInstallFiles();
-       
+
         //Suppression de la tab admin
         $id_tab = Tab::getIdFromClassName('wysiwyg');
-        if ( $id_tab ) {
+        if ($id_tab) {
             $tab = new Tab($id_tab);
             $tab->delete();
         }
-            
+
         return true;
     }
 
@@ -114,7 +114,7 @@ class EiCmsLinks extends Module {
      * Configuration du module
      */
     public function getContent() {
-        $this->html .=$this->postProcess();
+        $this->html .= $this->postProcess();
         $this->html .= $this->renderForm();
 
         return $this->html;
@@ -168,8 +168,7 @@ class EiCmsLinks extends Module {
             $currentPath = getcwd();
             $paths = explode('/', $currentPath);
             $adminDir = $paths[sizeof($paths) - 1];
-        } 
-        else {
+        } else {
             $adminDir = Configuration::get('eicmslinks_admin_path');
         }
 
@@ -218,9 +217,8 @@ class EiCmsLinks extends Module {
      * @return string : contenu avec les liens remplacés
      */
     public static function updateCmsLinksDisplay($content = null) {
-        
         //Inclusion de la classe des widgets
-        include_once dirname(__FILE__).'/classes/Widget.php';
+        include_once dirname(__FILE__) . '/classes/Widget.php';
 
         if ($content === null)
             return;
@@ -266,27 +264,26 @@ class EiCmsLinks extends Module {
 
         if (isset($product_links[1]) && sizeof($product_links[1])) {
             foreach ($product_links[1] as $product_link) {
-                $product_cart_url = sprintf('index.php?controller=cart&add=1&qty=1&id_product=%s&token=%s',$product_link,Tools::getToken());
+                $product_cart_url = sprintf('index.php?controller=cart&add=1&qty=1&id_product=%s&token=%s', $product_link, Tools::getToken());
                 $content = preg_replace('#{{cart url=' . $product_link . '}}#', $product_cart_url, $content);
             }
         }
-        
+
         //Gestion des widgets
         preg_match_all('#{{widget name="(.*)"(.*)}}#U', $content, $widgets);
-         
+
         if (isset($widgets[1]) && sizeof($widgets[1])) {
-            $i=0;
+            $i = 0;
             foreach ($widgets[1] as $widget) {
                 $widget = trim($widget);
-                if (is_file(dirname(__FILE__).'/classes/'.$widget.'.php')) {
-                    include_once dirname(__FILE__).'/classes/'.$widget.'.php';
+                if (is_file(dirname(__FILE__) . '/classes/' . $widget . '.php')) {
+                    include_once dirname(__FILE__) . '/classes/' . $widget . '.php';
                     $widgetParams = $widgets[2][$i];
                     try {
                         $widgetObject = new $widget($widgetParams);
                         $widgetContent = $widgetObject->display();
-                        $content = str_replace('{{widget name="'.$widget.'"'.$widgetParams.'}}',$widgetContent,$content);
-                    }
-                    catch ( PrestaShopExceptionCore $e ) {
+                        $content = str_replace('{{widget name="' . $widget . '"' . $widgetParams . '}}', $widgetContent, $content);
+                    } catch (PrestaShopExceptionCore $e) {
                         echo $e->getMessage();
                     }
                 }
@@ -312,13 +309,13 @@ class EiCmsLinks extends Module {
 				
 				<ul>';
                 foreach ($child['cms'] as $child_cms)
-                    $categories_html .= '<li><a href="#" onclick="addLink(\'{{cms url=' . $child_cms['id_cms'] . '}}\',\'' . $child_cms['meta_title'] . '\')">' . $child_cms['meta_title'] . '</a></li>';
+                    $categories_html .= '<li><a href="#" onclick="addLink(\'{{cms url=' . $child_cms['id_cms'] . '}}\')">' . $child_cms['meta_title'] . '</a></li>';
 
                 $categories_html .= '</ul></li>';
             }
         }
         foreach ($categories['cms'] as $cms)
-            $categories_html .= '<li><a href="#" onclick="addLink(\'{{cms url=' . $cms['id_cms'] . '}}\',\'' . $cms['meta_title'] . '\')">' . $cms['meta_title'] . '</a></li>';
+            $categories_html .= '<li><a href="#" onclick="addLink(\'{{cms url=' . $cms['id_cms'] . '}}\')">' . $cms['meta_title'] . '</a></li>';
 
         $categories_html .= '</ul>';
 
@@ -329,28 +326,29 @@ class EiCmsLinks extends Module {
      * Récupération de la liste des widgets
      * @return array $widgets
      */
-    public function getWidgetsList(){
-        
-        $class_dir = dirname(__FILE__).'/classes/';
-        
+    public function getWidgetsList() {
+
+        $class_dir = dirname(__FILE__) . '/classes/';
+
         $widgets = array();
-        
-        include_once $class_dir.'Widget.php';
-        
+
+        include_once $class_dir . 'Widget.php';
+
         $op = opendir($class_dir);
-        while ( $file = readdir($op)) {
-            if ( preg_match('#^Widget(.*)\.php#',$file,$widget_name) && $file != 'Widget.php') {
-                include_once $class_dir.$file;
-                $className = 'Widget'.$widget_name[1];
+        while ($file = readdir($op)) {
+            if (preg_match('#^Widget(.*)\.php#', $file, $widget_name) && $file != 'Widget.php') {
+                include_once $class_dir . $file;
+                $className = 'Widget' . $widget_name[1];
                 $widgets[] = array(
-                    'name' =>$widget_name[1],
+                    'name' => $widget_name[1],
                     'params' => $className::getAllowedParams()
                 );
             }
         }
-        
+
         return $widgets;
     }
+
     /**
      * Affichage de la popin TinyMce dans l'admin
      */
@@ -373,7 +371,8 @@ class EiCmsLinks extends Module {
         //Js nécessaires au fonctionnement de la popin
         $jquery_files = Media::getJqueryPath();
         $this->context->smarty->assign('jquery_file', $jquery_files[0]);
-        $this->context->smarty->assign('js_file', __PS_BASE_URI__ . 'modules/' . $this->name . '/views/tinymce_popup.js');
+        $this->context->smarty->assign('js_file', __PS_BASE_URI__ . 'modules/' . $this->name . '/js/tinymce_popup.js');
+        $this->context->smarty->assign('css_file', __PS_BASE_URI__ . 'modules/' . $this->name . '/css/tinymce_popup.css');
 
         //Version de prestashop concernée
         if (_PS_VERSION_ > '1.6')
@@ -386,7 +385,6 @@ class EiCmsLinks extends Module {
         echo $this->display(__FILE__, 'views/tinymce_popup.tpl');
     }
 
-    
     /**
      * Suppression des fichiers de surcharge admin lors de la desinstallation du module
      * On supprime uniquement les fichiers, car il est possible que d'autres modules surchargent un autre template

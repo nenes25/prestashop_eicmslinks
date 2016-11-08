@@ -20,3 +20,7 @@
                      - Widget implémenté :
                         - LoginWidget : Permets de mettre un bloc de login dans une page cms
                         - ProductWidget : Permets d'afficher les produits des nouveautés, promotions ou d'une catégorie dans les contenus
+2016-07-27 V 1.0.0 : - Gestion des textes de lien 
+                     - Correctifs ergonomique et fonctionnel
+                     - Compatible avec vos modules perso
+                     - Optimisation du code

@@ -4,144 +4,149 @@
         <meta charset="utf-8">
         <title>{l s='add link to prestashop cms page' mod='eicmslinks'}</title>
         {if $ps_version == 15}
-        <script type="text/javascript" src="../../tiny_mce_popup.js"></script>
+            <script type="text/javascript" src="../../tiny_mce_popup.js"></script>
         {/if}
         <script type="text/javascript">
-                var js_token = '{$js_token}';
-		var admin_dir = '{$admin_dir}';
-                var ajax_page = '{$ajax_page}'
+            var js_token = '{$js_token}';
+            var admin_dir = '{$admin_dir}';
+            var ajax_page = '{$ajax_page}'
         </script>
         <script type="text/javascript" src="{$jquery_file}"></script>
         <script type="text/javascript" src="{$js_file}"></script>
-
-        {literal}
-            <style>
-             ul.menu-link {list-style:none;height:20px;background-color:#8bc954;height:25px;padding:5px 28px 0px 20px;display: inline-block;border-radius:4px;}
-             ul.menu-link a {color:#FFF;text-decoration:none}
-             ul.menu-link a:hover {text-decoration: underline;}
-             ul.menu-link li {display: inline-block;margin-left:8px;text-transform:capitalize;}
-             .link-block {display:none;}
-             
-             /* Prestashop 1.6 */
-             .mce-window-head {height:15px;}
-             .table thead > tr.filter > th {background-color: #ecf6fb;padding:4px;}
-             .table tbody > tr > td {border-bottom: 1px solid #eaedef;border-top: medium none;color: #666;font-size: 12px;padding: 3px 7px;vertical-align: middle;}
-			 .table tbody > tr > td:hover { cursor:pointer;}
-             .icon-caret-down::before, .icon-caret-up::before {content:""!important}
-             .title_box a {display:none;}
-             .panel-heading {
-                color: #555;
-                font-family: "Ubuntu Condensed",Helvetica,Arial,sans-serif;
-                font-size: 14px;
-                font-weight: 400;
-                height: 32px;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-            .panel {
-                background-color: #fff;
-                border: 1px solid #e6e6e6;
-                border-radius: 5px;
-                box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1), 0 0 0 3px #fff inset;
-                margin-bottom: 20px;
-                padding: 20px;
-                position: relative;
-             }
-             /* Prestashop 1.5 */
-             .table_grid img {display:none;}
-             .category_label:hover {cursor:pointer;}
-            </style>
-        {/literal}
+        <link rel="stylesheet" href="{$css_file}">
     </head>
-    <body>
-	<ul class="menu-link">
-		<li><a class="show-block-link" rel="cms_content" href="#">{l s='cms content' mod='eicmslinks'}</a></li>
-		<li><a class="show-block-link" rel="category_content" href="#">{l s='category content' mod='eicmslinks'}</a></li>
-		<li><a class="show-block-link" rel="product_content" href="#">{l s='product content' mod='eicmslinks'}</a></li>
-                <li><a class="show-block-link" rel="widgets" href="#">{l s='widgets' mod='eicmslinks'}</a></li>
-	</ul>
-	<br style="clear:both;" />
+    <body id="eicmslinks_body">
+        <div class="input-group">
+            <label for="eicmslinks_textlink">{l s='Text link :' mod='eicmslinks'}</label>
+            <div id="eicmslinks_textlink_wrapper"><input type="text" id="eicmslinks_textlink" onkeyup="textlinkKeyUp()"/><span>{l s='This field is required !' mod='eicmslinks'}</span></div>
+        </div>
+        <ul class="menu-link">
+            <li><a class="show-block-link" rel="cms_content" href="#">{l s='cms content' mod='eicmslinks'}</a></li>
+            <li><a class="show-block-link" rel="category_content" href="#">{l s='category content' mod='eicmslinks'}</a></li>
+            <li><a class="show-block-link" rel="product_content" href="#">{l s='product content' mod='eicmslinks'}</a></li>
+            <li><a class="show-block-link" rel="widgets" href="#">{l s='widgets' mod='eicmslinks'}</a></li>
+        </ul>
+        <br style="clear:both;" />
         <p>{l s='click on the element to add it to the page content' mod='eicmslinks'}</p>
-		{* Cms contents *}
-		<div id="cms_content" class="link-block" style="display:block;">	
-			{$cms_categories_html}	
-		</div>
-		{* Categories (product) content *}
-		<div id="category_content" class="link-block">
-			<!-- Content dynamicaly loaded -->
-		</div>
-		{* Product content *}
-		<div id="product_content" class="link-block">
-			<!-- Content dynamicaly loaded -->
-			Contenu produits
-		</div>
-                <div id="widgets" class="link-block">
-                    <ul>
-                    {foreach from=$widgets_list item=widget}
-                        <li>
-                            <a href="#" onclick="addWidget('{$widget.name}');">{$widget.name}</a>
-                            {if sizeof($widget.params)}
-                                <div class="hint">
-                                    {l s='Allowed options' mod='eicmslinks'} :
-                                    {foreach from=$widget.params item=param}
-                                        {$param},
-                                    {/foreach}
-                                </div>
-                            {/if}
-                        </li>
-                    {/foreach}
-                     </ul>
-                </div>
-                		
+        {* Cms contents *}
+        <div id="cms_content" class="link-block" style="display:block;">	
+            {$cms_categories_html}	
+        </div>
+        {* Categories (product) content *}
+        <div id="category_content" class="link-block">
+            <!-- Content dynamicaly loaded -->
+        </div>
+        {* Product content *}
+        <div id="product_content" class="link-block">
+            <!-- Content dynamicaly loaded -->
+            Contenu produits
+        </div>
+        <div id="widgets" class="link-block">
+            <ul>
+                {foreach from=$widgets_list item=widget}
+                    <li>
+                        <a href="#" onclick="addWidget('{$widget.name}');">{$widget.name}</a>
+                        {if sizeof($widget.params)}
+                            <div class="hint">
+                                {l s='Allowed options' mod='eicmslinks'} :
+                                {foreach from=$widget.params item=param}
+                                    {$param},
+                                {/foreach}
+                            </div>
+                        {/if}
+                    </li>
+                {/foreach}
+            </ul>
+        </div>
+
         <div class="mceActionPanel">
-            <center>
-                <div>
-                    <input type="button" id="cancel" name="cancel" value="{l s='Cancel' mod='eicmslinks'}" class="mce-close" onclick="closePopup();" />
-                </div>
-            </center>
+            <div>
+                <input type="button" id="cancel" name="cancel" value="{l s='Cancel' mod='eicmslinks'}" class="mce-close" onclick="closePopup();" />
+            </div>
         </div>       
         <script>
+            // mise à jour du text du lien si text sélectionné
+            var iframe = window.parent.document.querySelectorAll("iframe");
+            var $textlink = document.getElementById("eicmslinks_textlink");
+            var $textlinkWrapper = document.getElementById("eicmslinks_textlink_wrapper");
+            var param = null;
+            var url = null;
+
+            // on cherche sur tous les iframes
+            for (var i = 0; i < iframe.length; i++) {
+
+                url = iframe[i].contentWindow.location.search;
+                param = url.split('eicmslinks_sel=')[1] ? url.split('eicmslinks_sel=')[1] : null;
+
+                // On change la valeur du INPUT uniquement si on a le bon paramètre
+                if (param !== null) {
+                    $textlink.value = decodeURIComponent(param);
+                }
+            }
+
+            function textlinkKeyUp() {
+                $textlink.value.length === 0 ? showError() : hideError();
+            }
+
+            function showError() {
+                $textlinkWrapper.className = "error";
+            }
+            function hideError() {
+                $textlinkWrapper.className = "";
+            }
+            
+            textlinkKeyUp();
+
             /**
              * Ajout du lien d'ans l'éditeur
              * @param string url
              * @param string texte
              * @returns void
              */
-            function addLink(url, texte) {
-                {if $ps_version == '16'}
-                    parent.tinymce.activeEditor.execCommand('mceInsertContent', false, '<a href="' + url + '">' + texte + '</b>');
-                    top.tinymce.activeEditor.windowManager.close();
-                {else}
-                    tinyMCE.execCommand('mceInsertContent',false,'<a href="'+url+'">'+texte+'</b>');
-                    tinyMCEPopup.close();	
-                {/if}
+            function addLink(url) {
+                texte = $textlink.value;
+                if (texte.length === 0 || texte === null) {
+                    showError();
+                    return false;
+                } else {
+                    hideError();
+                }
+
+
+            {if $ps_version == '16'}
+                parent.tinymce.activeEditor.execCommand('mceInsertContent', false, '<a href="' + url + '">' + texte + '</b>');
+                top.tinymce.activeEditor.windowManager.close();
+            {else}
+                tinyMCE.execCommand('mceInsertContent', false, '<a href="' + url + '">' + texte + '</b>');
+                tinyMCEPopup.close();
+            {/if}
             }
-            
+
             /**
              * Ajout d'un widget dans l'editeur
              * @param string name
              * @returns void
              */
             function addWidget(name) {
-                {if $ps_version == '16'}
-                    parent.tinymce.activeEditor.execCommand('mceInsertContent', false, '{ldelim}{ldelim}widget name="Widget'+name+'"{rdelim}{rdelim}');
-                    top.tinymce.activeEditor.windowManager.close();
-                {else}
-                    tinyMCE.execCommand('mceInsertContent',false,'{ldelim}{ldelim}widget name="Widget'+name+'"{rdelim}{rdelim}');
-                    tinyMCEPopup.close();	
-                {/if}
+            {if $ps_version == '16'}
+                parent.tinymce.activeEditor.execCommand('mceInsertContent', false, '{ldelim}{ldelim}widget name="Widget' + name + '"{rdelim}{rdelim}');
+                top.tinymce.activeEditor.windowManager.close();
+            {else}
+                tinyMCE.execCommand('mceInsertContent', false, '{ldelim}{ldelim}widget name="Widget' + name + '"{rdelim}{rdelim}');
+                tinyMCEPopup.close();
+            {/if}
             }
-            
+
             /**
              * Fermeture de la popup
              * @returns void
              */
-            function closePopup(){
-                {if $ps_version == '16'}
-                    top.tinymce.activeEditor.windowManager.close();
-                {else}
-                    tinyMCEPopup.close();	
-                {/if}
+            function closePopup() {
+            {if $ps_version == '16'}
+                top.tinymce.activeEditor.windowManager.close();
+            {else}
+                tinyMCEPopup.close();
+            {/if}
             }
         </script>    
 

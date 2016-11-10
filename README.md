@@ -7,29 +7,33 @@ It allows you to insert dynamics links to the cms pages / products categories / 
 
 In order to make it work after installation you need to configure the admin path
 <p align="center">
-	<img src="http://www.h-hennes.fr/blog/wp-content/uploads/2015/05/eicmslinks-configuration.jpg" alt="Ei cms links configuration" />
+<img src="https://github.com/SeyitDuman/prestashop_eicmslinks/blob/dev-v1.0/medias/eicmslinks-configuration?raw=true" alt="Ei cms links configuration">
 </p> 
 
 Screenshots :
 --------
 <p align="center">
 	New editor button : <br />
-	<img src="http://www.h-hennes.fr/blog/wp-content/uploads/2015/05/eicmslinks-button.jpg" alt="New editor button" />
+	<img src="https://github.com/SeyitDuman/prestashop_eicmslinks/blob/dev-v1.0/medias/eicmslinks-button.png?raw=true" alt="Eicmslinks Button">
 </p>
 
 <p align="center">
 	Insert link to cms Page : <br />
-	<img src="http://www.h-hennes.fr/blog/wp-content/uploads/2015/05/eicms-links-page.jpg" alt="Insert link to cms Page" />
+	<img src="https://github.com/SeyitDuman/prestashop_eicmslinks/blob/dev-v1.0/medias/eicms-links-page.png?raw=true" alt="Insert link to cms Page">
 </p>
 
 <p align="center">
 	Insert link to product category : <br />
-	<img src="http://www.h-hennes.fr/blog/wp-content/uploads/2015/05/eicms-links-category.jpg" alt="Insert link to product category" />
+	<img src="https://github.com/SeyitDuman/prestashop_eicmslinks/blob/dev-v1.0/medias/eicms-links-category.png?raw=true" alt="Insert link to product category">
 </p>
 
 <p align="center">
 	Insert link to product : <br />
-	<img src="http://www.h-hennes.fr/blog/wp-content/uploads/2015/05/eicmslinks-product.jpg" alt="Insert link to product" />
+	<img src="https://github.com/SeyitDuman/prestashop_eicmslinks/blob/dev-v1.0/medias/eicmslinks-product.png?raw=true" alt="Insert link to product">
+</p>
+<p align="center">
+	Insert widget content : <br />
+	<img src="https://github.com/SeyitDuman/prestashop_eicmslinks/blob/dev-v1.0/medias/eicmslinks-widget.png?raw=true" alt="Insert widget content">
 </p>
 Make working with your own Module :
 --------

@@ -7,7 +7,7 @@ It allows you to insert dynamics links to the cms pages / products categories / 
 
 In order to make it work after installation you need to configure the admin path
 <p align="left">
-<img src="https://github.com/SeyitDuman/prestashop_eicmslinks/blob/dev-v1.0/medias/eicmslinks-configuration?raw=true" alt="Ei cms links configuration">
+<img src="https://github.com/SeyitDuman/prestashop_eicmslinks/blob/dev-v1.0/medias/eicmslinks-configuration.png?raw=true" alt="Ei cms links configuration">
 </p> 
 
 Screenshots :

@@ -59,7 +59,7 @@ Make working with your own Module :
     </script>
 {/if}
 ```
-And put the following your module before class definition:
+And put the following in your module before class definition:
 ```php
 include_once(dirname(__FILE__) . '/../eicmslinks/eicmslinks.php');
 ```

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Module Cms Link
  * Mise en place de liens dynamiques vers les pages cms
  * © h-hennes 2013-2015 
@@ -24,3 +24,5 @@
                      - Correctifs ergonomique et fonctionnel
                      - Compatible avec vos modules perso
                      - Optimisation du code
+2017-04-19 V 1.0.1 : - Correction bug fonctionnel ( lien interne sur des id de page > 9 ne fonctionnait pas)
+				     - Correction lien interne au site

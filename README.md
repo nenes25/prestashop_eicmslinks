@@ -1,5 +1,6 @@
 # prestashop_eicmslinks (FR )
-Toutes les informations d'installation sont disponibles sur la page : http://www.h-hennes.fr/blog/prestashop-liens-dynamiques-dans-lediteur-tinymce/
+The module does not work on version 1.7 of prestashop.<br />
+All informations for installation are here : http://www.h-hennes.fr/blog/prestashop-liens-dynamiques-dans-lediteur-tinymce/
 
 # prestashop_eicmslinks
 Add Cms Links tools in tinyMce Editor ( on CmsPage / Products and Products Categories )

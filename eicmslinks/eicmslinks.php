@@ -32,7 +32,7 @@ class EiCmsLinks extends Module {
         $this->name = 'eicmslinks';
         $this->tab = 'hhennes';
         $this->author = 'hhennes';
-        $this->version = '1.0.0';
+        $this->version = '1.0.1';
         $this->need_instance = 0;
         $this->bootstrap = true;
 
@@ -210,6 +210,25 @@ class EiCmsLinks extends Module {
         }
         return rmdir($dir);
     }
+	
+	public static function removeBaseUrl($url) {
+
+        $removeBloc = 1;
+        if (strpos($url, "http") > -1) {
+            $removeBloc++;
+        }
+
+        $urlPart = explode('//' . Context::getContext()->shop->domain, $url);
+
+        // return until base url
+        if (isset($urlPart[1])) {
+            return $urlPart[1];
+        }
+
+        // default return not updated link
+        return $url;
+    }
+
 
     /**
      * Mise à jour de l'objet cms pour remplacer les variables d'url des lien
@@ -230,41 +249,45 @@ class EiCmsLinks extends Module {
         $link_model = new Link();
 
         //Mise à jour des liens vers les pages cms
-        preg_match_all('#{{cms url=([0-9])}}#', $content, $cms_links);
+        preg_match_all('#{{cms url=([0-9+])}}#', $content, $cms_links);
 
         if (isset($cms_links[1]) && sizeof($cms_links[1])) {
             foreach ($cms_links[1] as $link) {
                 $link_url = $link_model->getCMSLink($link);
+				$link_url = EiCmsLinks::removeBaseUrl($link_url);
                 $content = preg_replace('#{{cms url=' . $link . '}}#', $link_url, $content);
             }
         }
 
         //Mise à jour des liens vers les pages categories
-        preg_match_all('#{{category url=([0-9])}}#', $content, $category_links);
+        preg_match_all('#{{category url=([0-9+])}}#', $content, $category_links);
 
         if (isset($category_links[1]) && sizeof($category_links[1])) {
             foreach ($category_links[1] as $category_link) {
                 $category_link_url = $link_model->getCategoryLink($category_link);
+				$category_link_url = EiCmsLinks::removeBaseUrl($category_link_url);
                 $content = preg_replace('#{{category url=' . $category_link . '}}#', $category_link_url, $content);
             }
         }
 
         //Mise à jour des liens vers les pages produits
-        preg_match_all('#{{product url=([0-9])}}#', $content, $product_links);
+        preg_match_all('#{{product url=([0-9+])}}#', $content, $product_links);
 
         if (isset($product_links[1]) && sizeof($product_links[1])) {
             foreach ($product_links[1] as $product_link) {
                 $product_link_url = $link_model->getProductLink($product_link);
+				$product_link_url = EiCmsLinks::removeBaseUrl($product_link_url);
                 $content = preg_replace('#{{product url=' . $product_link . '}}#', $product_link_url, $content);
             }
         }
 
         //Mise à jour des liens d'ajout au panier
-        preg_match_all('#{{cart url=([0-9])}}#', $content, $product_links);
+        preg_match_all('#{{cart url=([0-9+])}}#', $content, $product_links);
 
         if (isset($product_links[1]) && sizeof($product_links[1])) {
             foreach ($product_links[1] as $product_link) {
                 $product_cart_url = sprintf('index.php?controller=cart&add=1&qty=1&id_product=%s&token=%s', $product_link, Tools::getToken());
+				$product_cart_url = EiCmsLinks::removeBaseUrl($product_cart_url);
                 $content = preg_replace('#{{cart url=' . $product_link . '}}#', $product_cart_url, $content);
             }
         }

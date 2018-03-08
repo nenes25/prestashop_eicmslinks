@@ -32,7 +32,7 @@ class EiCmsLinks extends Module {
         $this->name = 'eicmslinks';
         $this->tab = 'hhennes';
         $this->author = 'hhennes';
-        $this->version = '1.0.1';
+        $this->version = '2.0.0';
         $this->need_instance = 0;
         $this->bootstrap = true;
 
@@ -43,16 +43,20 @@ class EiCmsLinks extends Module {
     }
 
     public function install() {
-        if (!parent::install() || !Configuration::updateValue('eicmslinks_admin_path', 0))
+        if (!parent::install() 
+                //Hooks Backoffice
+                || !$this->registerHook('actionAdminControllerSetMedia')
+                //Hooks Fronts d'affichage
+                || !$this->registerHook('filterCmsContent') 
+                || !$this->registerHook('filterCmsCategoryContent') 
+                || !$this->registerHook('filterProductContent') 
+                || !$this->registerHook('filterCategoryContent') 
+                || !$this->registerHook('filterManufacturerContent') 
+                || !$this->registerHook('filterSupplierContent')
+        )
             return false;
 
-        //Copie des dossier de l'editeur tinyMce
-        $this->copyDir(dirname(__FILE__) . '/tiny_mce/', dirname(__FILE__) . '/../../js/tiny_mce/plugins/');
 
-        //Copie de l'override du formulaire cms de l'admin (Normalement devrait fonctionner via prestashop)
-        $this->copyDir(dirname(__FILE__) . '/override/controllers/admin/templates/', dirname(__FILE__) . '/../../override/controllers/admin/templates/');
-
-        //Création d'une tab prestashop ( nécessaire pour le controller back office )
         $tab = new Tab();
         $tab->class_name = 'wysiwyg';
         //On va la ranger dans "Préférences comme les pages cms y sont insérée
@@ -70,11 +74,6 @@ class EiCmsLinks extends Module {
             return false;
         }
 
-        //Spécifique 1.5 ( on renomme le fichier de surcharge avec le bon nom car ils ne sont pas compatibles entre les versions )
-        if (_PS_VERSION_ < '1.6') {
-            rename(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form.tpl', dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form16.tpl');
-            rename(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form15.tpl', dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form.tpl');
-        }
         return true;
     }
 
@@ -82,13 +81,6 @@ class EiCmsLinks extends Module {
 
         if (!parent::uninstall())
             return false;
-
-        //Suppression des fichiers lors de la désinstallation
-        if (!$this->deleteDir(dirname(__FILE__) . '/../../js/tiny_mce/plugins/eicmslinks/'))
-            return false;
-
-        //Suppression des overrides admin (non bloquant)
-        $this->_unInstallFiles();
 
         //Suppression de la tab admin
         $id_tab = Tab::getIdFromClassName('wysiwyg');
@@ -100,349 +92,112 @@ class EiCmsLinks extends Module {
         return true;
     }
 
-    /**
-     * Soumission de la configuration dans l'admin
-     */
-    public function postProcess() {
-        if (Tools::isSubmit('SubmitConfiguration')) {
-            Configuration::updateValue('eicmslinks_admin_path', Tools::getValue('eicmslinks_admin_path'));
-            $this->html .= $this->displayConfirmation($this->l('Settings updated'));
-        }
+    public function hookFilterCmsContent($params) {
+
+        $params['object']['content'] = $this->_updateCmsLinks($params['object']['content']);
+
+        return [
+            'object' => $params['object']
+        ];
     }
 
-    /**
-     * Configuration du module
-     */
-    public function getContent() {
-        $this->html .= $this->postProcess();
-        $this->html .= $this->renderForm();
+    public function hookFilterCmsCategoryContent($params) {
 
-        return $this->html;
+        $params['object']['description'] = $this->_updateCmsLinks($params['object']['description']);
+
+        return [
+            'object' => $params['object']
+        ];
     }
 
-    /**
-     * Formulaire de configuration du module
-     */
-    public function renderForm() {
-
-        $fields_form = array(
-            'form' => array(
-                'legend' => array(
-                    'title' => $this->l('Ei cms Links Configuration'),
-                    'icon' => 'icon-cogs'
-                ),
-                'description' => $this->l('In order to works properly the module needs to know your adminPath (without slash) ie : admin-dev'),
-                'input' => array(
-                    array(
-                        'type' => 'text',
-                        'label' => $this->l('Admin Path'),
-                        'name' => 'eicmslinks_admin_path',
-                        'required' => true,
-                        'empty_message' => $this->l('Please fill the captcha private key'),
-                    ),
-                ),
-                'submit' => array(
-                    'title' => $this->l('Save'),
-                    'class' => 'button btn btn-default pull-right',
-                ),
-        ));
-
-        $helper = new HelperForm();
-        $helper->show_toolbar = false;
-        $lang = new Language((int) Configuration::get('PS_LANG_DEFAULT'));
-        $helper->default_form_language = $lang->id;
-        $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') ? Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') : 0;
-        $helper->id = 'eicmslinks';
-        $helper->submit_action = 'SubmitConfiguration';
-        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false) . '&configure=' . $this->name . '&tab_module=' . $this->tab . '&module_name=' . $this->name;
-        $helper->token = Tools::getAdminTokenLite('AdminModules');
-        $helper->tpl_vars = array(
-            'fields_value' => $this->getConfigFieldsValues(),
-        );
-
-        return $helper->generateForm(array($fields_form));
+    public function hookFilterProductContent($params) {
+        
     }
 
-    public function getConfigFieldsValues() {
-        if (Configuration::get('eicmslinks_admin_path') == '0') {
-            $currentPath = getcwd();
-            $paths = explode('/', $currentPath);
-            $adminDir = $paths[sizeof($paths) - 1];
-        } else {
-            $adminDir = Configuration::get('eicmslinks_admin_path');
-        }
+    public function hookFilterCategoryContent($params) {
 
-        return array('eicmslinks_admin_path' => Tools::getValue('eicmslinks_admin_path', $adminDir));
+        $params['object']['description'] = $this->_updateCmsLinks($params['object']['description']);
+
+        return [
+            'object' => $params['object']
+        ];
     }
 
-    /**
-     * Copie du contenu d'un dossier vers un autre emplacement
-     * @param string $dir2copy : Chemin du dossier à copier
-     * @param string $dir_paste : Chemin vers lequel copier le dossier
-     * @return void
-     */
-    public function copyDir($dir2copy, $dir_paste) {
-        if (is_dir($dir2copy)) {
-            if ($dhd = opendir($dir2copy)) {
-                while (($file = readdir($dhd)) !== false) {
-                    if (!is_dir($dir_paste))
-                        $create_dir = mkdir($dir_paste, 0777);
+    public function hookFilterManufacturerContent($params) {
 
-                    if (is_dir($dir2copy . $file) && $file != '..' && $file != '.')
-                        $this->copyDir($dir2copy . $file . '/', $dir_paste . $file . '/');
-                    elseif ($file != '..' && $file != '.')
-                        $copy_file = copy($dir2copy . $file, $dir_paste . $file);
-                }
-                closedir($dhd);
-            }
-        }
+        return $this->_updateCmsLinks($params['filtered_content']);
     }
 
-    /**
-     * Supression récursive d'un dossier
-     * @param type $dir
-     * @return boolean
-     */
-    public function deleteDir($dir) {
-        $files = array_diff(scandir($dir), array('.', '..'));
-        foreach ($files as $file) {
-            (is_dir("$dir/$file")) ? $this->deleteDir("$dir/$file") : unlink("$dir/$file");
-        }
-        return rmdir($dir);
+    public function hookFilterSupplierContent($params) {
+        $params['object']['description'] = $this->_updateCmsLinks($params['object']['description']);
+
+        return [
+            'object' => $params['object']
+        ];
     }
-	
-	public static function removeBaseUrl($url) {
-
-        $removeBloc = 1;
-        if (strpos($url, "http") > -1) {
-            $removeBloc++;
-        }
-
-        $urlPart = explode('//' . Context::getContext()->shop->domain, $url);
-
-        // return until base url
-        if (isset($urlPart[1])) {
-            return $urlPart[1];
-        }
-
-        // default return not updated link
-        return $url;
-    }
-
 
     /**
      * Mise à jour de l'objet cms pour remplacer les variables d'url des lien
      * @param string : contenu ou il faut remplacer les liens
      * @return string : contenu avec les liens remplacés
      */
-    public static function updateCmsLinksDisplay($content = null) {
-        //Inclusion de la classe des widgets
-        include_once dirname(__FILE__) . '/classes/Widget.php';
+    protected function _updateCmsLinks($content) {
 
-        if ($content === null)
-            return;
-
-        //Dans prestashop 1.6 les caractères { et } sont encodés
-        if (_PS_VERSION_ > '1.6')
-            $content = urldecode($content);
-
-        $link_model = new Link();
+        $content = urldecode($content);
+        $link_model = $this->context->link;
 
         //Mise à jour des liens vers les pages cms
-        preg_match_all('#{{cms url=([0-9+])}}#', $content, $cms_links);
+        preg_match_all('#{{cms id=([0-9+])}}#', $content, $cms_links);
 
         if (isset($cms_links[1]) && sizeof($cms_links[1])) {
             foreach ($cms_links[1] as $link) {
                 $link_url = $link_model->getCMSLink($link);
-				$link_url = EiCmsLinks::removeBaseUrl($link_url);
-                $content = preg_replace('#{{cms url=' . $link . '}}#', $link_url, $content);
+                //$link_url = EiCmsLinks::removeBaseUrl($link_url);
+                $content = preg_replace('#{{cms id=' . $link . '}}#', $link_url, $content);
             }
         }
 
         //Mise à jour des liens vers les pages categories
-        preg_match_all('#{{category url=([0-9+])}}#', $content, $category_links);
+        preg_match_all('#{{category id=([0-9+])}}#', $content, $category_links);
 
         if (isset($category_links[1]) && sizeof($category_links[1])) {
             foreach ($category_links[1] as $category_link) {
                 $category_link_url = $link_model->getCategoryLink($category_link);
-				$category_link_url = EiCmsLinks::removeBaseUrl($category_link_url);
-                $content = preg_replace('#{{category url=' . $category_link . '}}#', $category_link_url, $content);
+                //$category_link_url = EiCmsLinks::removeBaseUrl($category_link_url);
+                $content = preg_replace('#{{category id=' . $category_link . '}}#', $category_link_url, $content);
             }
         }
 
         //Mise à jour des liens vers les pages produits
-        preg_match_all('#{{product url=([0-9+])}}#', $content, $product_links);
+        preg_match_all('#{{product id=([0-9+])}}#', $content, $product_links);
 
         if (isset($product_links[1]) && sizeof($product_links[1])) {
             foreach ($product_links[1] as $product_link) {
                 $product_link_url = $link_model->getProductLink($product_link);
-				$product_link_url = EiCmsLinks::removeBaseUrl($product_link_url);
-                $content = preg_replace('#{{product url=' . $product_link . '}}#', $product_link_url, $content);
+                //$product_link_url = EiCmsLinks::removeBaseUrl($product_link_url);
+                $content = preg_replace('#{{product id=' . $product_link . '}}#', $product_link_url, $content);
             }
         }
 
         //Mise à jour des liens d'ajout au panier
-        preg_match_all('#{{cart url=([0-9+])}}#', $content, $product_links);
+        preg_match_all('#{{cart id=([0-9+])}}#', $content, $product_links);
 
         if (isset($product_links[1]) && sizeof($product_links[1])) {
             foreach ($product_links[1] as $product_link) {
-                $product_cart_url = sprintf('index.php?controller=cart&add=1&qty=1&id_product=%s&token=%s', $product_link, Tools::getToken());
-				$product_cart_url = EiCmsLinks::removeBaseUrl($product_cart_url);
-                $content = preg_replace('#{{cart url=' . $product_link . '}}#', $product_cart_url, $content);
-            }
-        }
-
-        //Gestion des widgets
-        preg_match_all('#{{widget name="(.*)"(.*)}}#U', $content, $widgets);
-
-        if (isset($widgets[1]) && sizeof($widgets[1])) {
-            $i = 0;
-            foreach ($widgets[1] as $widget) {
-                $widget = trim($widget);
-                if (is_file(dirname(__FILE__) . '/classes/' . $widget . '.php')) {
-                    include_once dirname(__FILE__) . '/classes/' . $widget . '.php';
-                    $widgetParams = $widgets[2][$i];
-                    try {
-                        $widgetObject = new $widget($widgetParams);
-                        $widgetContent = $widgetObject->display();
-                        $content = str_replace('{{widget name="' . $widget . '"' . $widgetParams . '}}', $widgetContent, $content);
-                    } catch (PrestaShopExceptionCore $e) {
-                        echo $e->getMessage();
-                    }
-                }
-                $i++;
+                $product_cart_url = $link_model->getAddToCartURL($product_link, 0);
+                //$product_cart_url = EiCmsLinks::removeBaseUrl($product_cart_url);
+                $content = preg_replace('#{{cart id=' . $product_link . '}}#', $product_cart_url, $content);
             }
         }
 
         return $content;
     }
 
-    /**
-     * Récupération de l'arborescence des pages cms
-     *
-     */
-    public static function getCmsLinks() {
-        //Version basique pour l'instant : ne gère qu'un niveau
-        $categories = CMSCategory::getRecurseCategory();
-
-        $categories_html = '<ul>';
-        if ($categories['children']) {
-            foreach ($categories['children'] as $child) {
-                $categories_html .= '<li>' . $child['name'] . '
-				
-				<ul>';
-                foreach ($child['cms'] as $child_cms)
-                    $categories_html .= '<li><a href="#" onclick="addLink(\'{{cms url=' . $child_cms['id_cms'] . '}}\')">' . $child_cms['meta_title'] . '</a></li>';
-
-                $categories_html .= '</ul></li>';
-            }
-        }
-        foreach ($categories['cms'] as $cms)
-            $categories_html .= '<li><a href="#" onclick="addLink(\'{{cms url=' . $cms['id_cms'] . '}}\')">' . $cms['meta_title'] . '</a></li>';
-
-        $categories_html .= '</ul>';
-
-        return $categories_html;
+    
+    public function hookActionAdminControllerSetMedia($params)
+    {
+        
+       //@ToDO : gérer les controlleurs ou on souhaite l'afficher !
+        $this->context->controller->addJS($this->_path.'/views/js/admin/widget.js');
     }
-
-    /**
-     * Récupération de la liste des widgets
-     * @return array $widgets
-     */
-    public function getWidgetsList() {
-
-        $class_dir = dirname(__FILE__) . '/classes/';
-
-        $widgets = array();
-
-        include_once $class_dir . 'Widget.php';
-
-        $op = opendir($class_dir);
-        while ($file = readdir($op)) {
-            if (preg_match('#^Widget(.*)\.php#', $file, $widget_name) && $file != 'Widget.php') {
-                include_once $class_dir . $file;
-                $className = 'Widget' . $widget_name[1];
-                $widgets[] = array(
-                    'name' => $widget_name[1],
-                    'params' => $className::getAllowedParams()
-                );
-            }
-        }
-
-        return $widgets;
-    }
-
-    /**
-     * Affichage de la popin TinyMce dans l'admin
-     */
-    public function displayTinyMcePopup() {
-
-        //Liste des pages cms
-        $this->context->smarty->assign('cms_categories_html', $this->getCmsLinks());
-        //Liste des widgets du module
-        $this->context->smarty->assign('widgets_list', $this->getWidgetsList());
-
-        //Token Admin ( celui récupéré automatiquement ne fonctionne pas )
-        $cookie = new Cookie('psAdmin');
-        $token = Tools::getAdminToken('Wysiwyg' . (int) Tab::getIdFromClassName('Wysiwyg') . (int) $cookie->id_employee);
-        $ajax_page = $this->context->link->getAdminLink('module=eicmslinks&controller=Wysiwyg&ajax=1', false);
-
-        $this->context->smarty->assign('js_token', $token);
-        $this->context->smarty->assign('ajax_page', $ajax_page);
-        $this->context->smarty->assign('admin_dir', Configuration::get('eicmslinks_admin_path'));
-
-        //Js nécessaires au fonctionnement de la popin
-        $jquery_files = Media::getJqueryPath();
-        $this->context->smarty->assign('jquery_file', $jquery_files[0]);
-        $this->context->smarty->assign('js_file', __PS_BASE_URI__ . 'modules/' . $this->name . '/js/tinymce_popup.js');
-        $this->context->smarty->assign('css_file', __PS_BASE_URI__ . 'modules/' . $this->name . '/css/tinymce_popup.css');
-
-        //Version de prestashop concernée
-        if (_PS_VERSION_ > '1.6')
-            $ps_version = '16';
-        else
-            $ps_version = '15';
-
-        $this->context->smarty->assign('ps_version', $ps_version);
-
-        echo $this->display(__FILE__, 'views/tinymce_popup.tpl');
-    }
-
-    /**
-     * Suppression des fichiers de surcharge admin lors de la desinstallation du module
-     * On supprime uniquement les fichiers, car il est possible que d'autres modules surchargent un autre template
-     */
-    protected function _unInstallFiles() {
-
-        $deleted = true;
-
-        //Si la suppression du template admin si la desinstall prestashop n'a pas fonctionné on le supprime 
-        if (is_file(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form.tpl'))
-            if (!unlink(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form.tpl'))
-                $deleted = false;
-
-        if (_PS_VERSION_ < '1.6') {
-            if (is_file(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form16.tpl'))
-                ;
-            if (!unlink(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form16.tpl'))
-                $deleted = false;
-        }
-        else {
-            if (is_file(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form15.tpl'))
-                ;
-            if (!unlink(dirname(__FILE__) . '/../../override/controllers/admin/templates/cms/helpers/form/form15.tpl'))
-                $deleted = false;
-        }
-
-        if (is_file(dirname(__FILE__) . '/../../override/controllers/admin/templates/categories/helpers/form/form.tpl'))
-            if (!unlink(dirname(__FILE__) . '/../../override/controllers/admin/templates/categories/helpers/form/form.tpl'))
-                $deleted = false;
-
-        if (is_file(dirname(__FILE__) . '/../../override/controllers/admin/templates/products/helpers/form/form.tpl'))
-            if (!unlink(dirname(__FILE__) . '/../../override/controllers/admin/templates/products/helpers/form/form.tpl'))
-                $deleted = false;
-
-        return $deleted;
-    }
-
 }
